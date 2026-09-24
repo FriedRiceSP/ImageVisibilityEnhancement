@@ -1,26 +1,211 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>画像補助線ツール</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <h1>画像補助線ツール</h1>
+<!DOCTYPE html> <html lang="ja"> <head> <meta charset="UTF-8">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <input type="file" id="imageInput" accept="image/*" multiple>
+<title>画像補助線ツール</title>
 
-    <div class="image-controls">
-        <button id="prevButton" disabled>← 前の画像</button>
-        <span id="imageInfo">画像 0 / 0</span>
-        <button id="nextButton" disabled>次の画像 →</button>
-    </div>
+<link
+    rel="stylesheet"
+    href="style.css"
+>
+
+</head> <body>
+<h1>画像補助線ツール</h1>
+
+
+<!-- ==================================
+     ファイル操作
+     ================================== -->
+
+<div class="file-controls">
+
+    <input
+        type="file"
+        id="imageInput"
+        accept="image/*"
+        multiple
+    >
+
+    <button
+        id="resetImagesButton"
+        type="button"
+    >
+        読み込んだ画像をすべてリセット
+    </button>
+
+</div>
+
+
+<!-- ==================================
+     画像一覧
+     ================================== -->
+
+<div class="image-list-area">
+
+    <h2>画像一覧</h2>
+
+    <p class="list-help">
+        画像をドラッグして並び替えできます
+    </p>
+
+    <div id="imageList"></div>
+
+</div>
+
+
+<!-- ==================================
+     画像切り替え
+     ================================== -->
+
+<div class="image-controls">
+
+    <button
+        id="prevButton"
+        disabled
+    >
+        ← 前の画像
+    </button>
+
+    <span id="imageInfo">
+        画像 0 / 0
+    </span>
+
+    <button
+        id="nextButton"
+        disabled
+    >
+        次の画像 →
+    </button>
+
+</div>
+
+
+<!-- ==================================
+     Canvas
+     ================================== -->
+
+<div class="canvas-container">
+
+    <canvas id="canvas"></canvas>
+
+    <!-- グリッド -->
+    <div id="grid"></div>
+
+</div>
+
+
+<!-- ==================================
+     グリッド移動
+     ================================== -->
+
+<div class="grid-controls">
+
+    <button
+        id="upButton"
+        type="button"
+    >
+        ↑
+    </button>
 
     <div>
-        <canvas id="canvas"></canvas>
+
+        <button
+            id="leftButton"
+            type="button"
+        >
+            ←
+        </button>
+
+        <button
+            id="rightButton"
+            type="button"
+        >
+            →
+        </button>
+
     </div>
 
-    <script src="main.js"></script>
-</body>
-</html>
+    <button
+        id="downButton"
+        type="button"
+    >
+        ↓
+    </button>
+
+</div>
+
+
+<!-- ==================================
+     グリッド拡大縮小
+     ================================== -->
+
+<div class="grid-scale-controls">
+
+    <button
+        id="zoomOutButton"
+        type="button"
+    >
+        −
+    </button>
+
+    <span id="gridSizeInfo">
+        50 px
+    </span>
+
+    <button
+        id="zoomInButton"
+        type="button"
+    >
+        ＋
+    </button>
+
+</div>
+
+
+<!-- ==================================
+     グリッド色・太さ
+     ================================== -->
+
+<div class="grid-style-controls">
+
+    <button
+        id="colorButton"
+        type="button"
+    >
+        色変更
+    </button>
+
+    <span id="gridColorInfo">
+        赤
+    </span>
+
+
+    <button
+        id="widthButton"
+        type="button"
+    >
+        太さ変更
+    </button>
+
+    <span id="gridWidthInfo">
+        1 px
+    </span>
+
+</div>
+
+
+<!-- ==================================
+     操作説明
+     ================================== -->
+
+<p class="grid-help">
+    グリッドをドラッグして移動できます<br>
+    PC：マウスホイール　スマホ：2本指でピンチ
+</p>
+
+
+<script src="main.js"></script>
+
+</body> </html>
