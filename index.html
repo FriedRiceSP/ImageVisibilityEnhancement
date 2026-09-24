@@ -1,4 +1,10 @@
-<!DOCTYPE html> <html lang="ja"> <head> <meta charset="UTF-8">
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
 <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
@@ -11,7 +17,10 @@
     href="style.css"
 >
 
-</head> <body>
+</head>
+
+<body>
+
 <h1>画像補助線ツール</h1>
 
 
@@ -97,7 +106,7 @@
 
 
 <!-- ==================================
-     グリッド移動
+     画像移動
      ================================== -->
 
 <div class="grid-controls">
@@ -138,7 +147,7 @@
 
 
 <!-- ==================================
-     グリッド拡大縮小
+     画像拡大縮小
      ================================== -->
 
 <div class="grid-scale-controls">
@@ -151,7 +160,7 @@
     </button>
 
     <span id="gridSizeInfo">
-        50 px
+        100 %
     </span>
 
     <button
@@ -159,6 +168,22 @@
         type="button"
     >
         ＋
+    </button>
+
+</div>
+
+
+<!-- ==================================
+     画像位置・拡大率リセット
+     ================================== -->
+
+<div class="image-transform-reset">
+
+    <button
+        id="resetImageTransformButton"
+        type="button"
+    >
+        画像の位置・拡大率をリセット
     </button>
 
 </div>
@@ -201,11 +226,20 @@
      ================================== -->
 
 <p class="grid-help">
-    グリッドをドラッグして移動できます<br>
-    PC：マウスホイール　スマホ：2本指でピンチ
+
+    画像をドラッグして移動できます<br>
+
+    PC：マウスホイールで画像を拡大・縮小<br>
+
+    スマホ：2本指でピンチして画像を拡大・縮小<br>
+
+    画像を切り替えても、拡大率と位置は維持されます
+
 </p>
 
 
 <script src="main.js"></script>
 
-</body> </html>
+</body>
+
+</html>
