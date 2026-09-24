@@ -1311,19 +1311,6 @@ event => {
 
     }
 
-    /*
-       タッチ操作時は
-       1本指ドラッグを開始しない。
-    */
-
-    if (
-        event.pointerType === "touch"
-    ) {
-
-        return;
-
-    }
-
     dragging = true;
 
     startPointerX =
