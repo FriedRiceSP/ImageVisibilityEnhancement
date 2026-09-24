@@ -1,12 +1,35 @@
 body {
-    font-family: sans-serif;
-    text-align: center;
-    margin: 20px;
+font-family: sans-serif;
+text-align: center;
+margin: 20px;
+}
+
+.image-controls {
+margin-top: 20px;
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 20px;
+}
+
+.image-controls button {
+padding: 8px 16px;
+font-size: 16px;
+cursor: pointer;
+}
+
+.image-controls button:disabled {
+cursor: default;
+opacity: 0.5;
+}
+
+#imageInfo {
+min-width: 80px;
 }
 
 canvas {
-    max-width: 100%;
-    height: auto;
-    border: 1px solid #ccc;
-    margin-top: 20px;
+max-width: 100%;
+height: auto;
+border: 1px solid #ccc;
+margin-top: 20px;
 }

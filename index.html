@@ -9,7 +9,13 @@
 <body>
     <h1>画像補助線ツール</h1>
 
-    <input type="file" id="imageInput" accept="image/*">
+    <input type="file" id="imageInput" accept="image/*" multiple>
+
+    <div class="image-controls">
+        <button id="prevButton" disabled>← 前の画像</button>
+        <span id="imageInfo">画像 0 / 0</span>
+        <button id="nextButton" disabled>次の画像 →</button>
+    </div>
 
     <div>
         <canvas id="canvas"></canvas>
