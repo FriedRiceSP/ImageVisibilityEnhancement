@@ -3,7 +3,7 @@ document.getElementById("imageInput");
 
 const resetImagesButton =
 document.getElementById(
-    "resetImagesButton"
+"resetImagesButton"
 );
 
 const canvas =
@@ -45,8 +45,20 @@ document.getElementById("zoomOutButton");
 const zoomInButton =
 document.getElementById("zoomInButton");
 
-const gridSizeInfo =
-document.getElementById("gridSizeInfo");
+const imageScaleInput =
+document.getElementById(
+"imageScaleInput"
+);
+
+const gridSizeSlider =
+document.getElementById(
+"gridSizeSlider"
+);
+
+const gridSizeValue =
+document.getElementById(
+"gridSizeValue"
+);
 
 const colorButton =
 document.getElementById("colorButton");
@@ -62,9 +74,8 @@ document.getElementById("gridWidthInfo");
 
 const resetImageTransformButton =
 document.getElementById(
-    "resetImageTransformButton"
+"resetImageTransformButton"
 );
-
 
 // ======================================
 // 画像
@@ -74,17 +85,13 @@ let images = [];
 
 let currentIndex = 0;
 
-
 // ======================================
 // 画像の拡大・移動
 // ======================================
 
 /*
-    画像を切り替えても、この3つの値は
-    そのまま維持する。
-
-    つまり、すべての画像で
-    同じ拡大率・位置を共有する。
+画像を切り替えても、
+拡大率と位置は維持する。
 */
 
 let imageScale = 1;
@@ -93,7 +100,6 @@ let imageX = 0;
 
 let imageY = 0;
 
-
 const MOVE_STEP = 1;
 
 const SCALE_STEP = 0.05;
@@ -101,7 +107,6 @@ const SCALE_STEP = 0.05;
 const MIN_IMAGE_SCALE = 0.1;
 
 const MAX_IMAGE_SCALE = 5.0;
-
 
 // ======================================
 // グリッド
@@ -117,64 +122,61 @@ let gridWidth = 1;
 
 let gridColorIndex = 0;
 
-
 // ======================================
 // グリッド色
 // ======================================
 
 const gridColors = [
 
-    {
-        name: "赤",
-        color: "rgba(255, 0, 0, 0.55)"
-    },
+{
+    name: "赤",
+    color: "rgba(255, 0, 0, 0.55)"
+},
 
-    {
-        name: "青",
-        color: "rgba(0, 80, 255, 0.55)"
-    },
+{
+    name: "青",
+    color: "rgba(0, 80, 255, 0.55)"
+},
 
-    {
-        name: "緑",
-        color: "rgba(0, 180, 80, 0.55)"
-    },
+{
+    name: "緑",
+    color: "rgba(0, 180, 80, 0.55)"
+},
 
-    {
-        name: "黒",
-        color: "rgba(0, 0, 0, 0.55)"
-    },
+{
+    name: "黄色",
+    color: "rgba(255, 220, 0, 0.65)"
+},
 
-    {
-        name: "白",
-        color: "rgba(255, 255, 255, 0.75)"
-    },
+{
+    name: "水色",
+    color: "rgba(0, 210, 255, 0.60)"
+},
 
-    {
-        name: "黄色",
-        color: "rgba(255, 220, 0, 0.65)"
-    },
+{
+    name: "赤紫",
+    color: "rgba(220, 0, 150, 0.60)"
+},
 
-    {
-        name: "水色",
-        color: "rgba(0, 210, 255, 0.60)"
-    },
+{
+    name: "黒",
+    color: "rgba(0, 0, 0, 0.55)"
+},
 
-    {
-        name: "赤紫",
-        color: "rgba(220, 0, 150, 0.60)"
-    }
+{
+    name: "白",
+    color: "rgba(255, 255, 255, 0.75)"
+}
 
 ];
-
 
 const gridWidths = [
-    1,
-    2,
-    3,
-    4,
-    5
+1,
+2,
+3,
+4,
+5
 ];
-
 
 // ======================================
 // グリッド表示更新
@@ -182,40 +184,46 @@ const gridWidths = [
 
 function updateGrid() {
 
-    grid.style.backgroundPosition =
-        `${gridX}px ${gridY}px`;
+grid.style.backgroundPosition =
+    `${gridX}px ${gridY}px`;
 
-    grid.style.backgroundSize =
-        `${gridSize}px ${gridSize}px`;
+grid.style.backgroundSize =
+    `${gridSize}px ${gridSize}px`;
 
-    const color =
-        gridColors[gridColorIndex].color;
+const color =
+    gridColors[gridColorIndex].color;
 
-    const width =
-        gridWidth;
+const width =
+    gridWidth;
 
-    grid.style.backgroundImage = `
-        linear-gradient(
-            to right,
-            ${color} 0,
-            ${color} ${width}px,
-            transparent ${width}px
-        ),
-        linear-gradient(
-            to bottom,
-            ${color} 0,
-            ${color} ${width}px,
-            transparent ${width}px
-        )
-    `;
+grid.style.backgroundImage = `
+    linear-gradient(
+        to right,
+        ${color} 0,
+        ${color} ${width}px,
+        transparent ${width}px
+    ),
+    linear-gradient(
+        to bottom,
+        ${color} 0,
+        ${color} ${width}px,
+        transparent ${width}px
+    )
+`;
 
-    gridColorInfo.textContent =
-        gridColors[gridColorIndex].name;
+gridColorInfo.textContent =
+    gridColors[gridColorIndex].name;
 
-    gridWidthInfo.textContent =
-        `${gridWidth} px`;
+gridWidthInfo.textContent =
+    `${gridWidth} px`;
+
+gridSizeSlider.value =
+    gridSize;
+
+gridSizeValue.textContent =
+    `${gridSize} px`;
+
 }
-
 
 // ======================================
 // 画像の拡大率・位置を反映
@@ -223,26 +231,36 @@ function updateGrid() {
 
 function updateImageTransform() {
 
-    canvas.style.transform = `
-        translate(
-            ${imageX}px,
-            ${imageY}px
-        )
-        scale(
-            ${imageScale}
-        )
-    `;
+canvas.style.transform = `
+    translate(
+        ${imageX}px,
+        ${imageY}px
+    )
+    scale(
+        ${imageScale}
+    )
+`;
 
-    gridSizeInfo.textContent =
-        `${Math.round(imageScale * 100)} %`;
+/*
+   ここでは gridSizeInfo を使用しない。
+
+   拡大率は imageScaleInput に表示する。
+*/
+
+imageScaleInput.value =
+    Math.round(
+        imageScale * 100
+    );
+
 }
-
 
 // ======================================
 // 画像の拡大率変更
 // ======================================
 
-function changeImageScale(amount) {
+function changeImageScale(
+    amount
+) {
 
     imageScale += amount;
 
@@ -256,225 +274,315 @@ function changeImageScale(amount) {
         );
 
     updateImageTransform();
-}
 
+}
 
 // ======================================
 // 拡大
 // ======================================
 
 zoomInButton.addEventListener(
-    "click",
-    () => {
+"click",
+() => {
 
-        changeImageScale(
-            SCALE_STEP
-        );
+    changeImageScale(
+        SCALE_STEP
+    );
 
-    }
+}
+
 );
-
 
 // ======================================
 // 縮小
 // ======================================
 
 zoomOutButton.addEventListener(
-    "click",
-    () => {
+"click",
+() => {
 
-        changeImageScale(
-            -SCALE_STEP
-        );
+    changeImageScale(
+        -SCALE_STEP
+    );
 
-    }
+}
+
 );
 
+// ======================================
+// 拡大率を直接入力
+// ======================================
+
+function applyImageScaleInput() {
+
+    let value =
+        Number(
+            imageScaleInput.value
+        );
+
+    if (
+        !Number.isFinite(value)
+    ) {
+
+        updateImageTransform();
+
+        return;
+
+    }
+
+    /*
+       10 ～ 500 % に制限
+    */
+
+    value =
+        Math.max(
+            MIN_IMAGE_SCALE * 100,
+            Math.min(
+                MAX_IMAGE_SCALE * 100,
+                value
+            )
+        );
+
+    /*
+       直接入力した値を
+       そのまま使用する。
+    */
+
+    imageScale =
+        value / 100;
+
+    updateImageTransform();
+
+}
+
+imageScaleInput.addEventListener(
+"change",
+() => {
+
+    applyImageScaleInput();
+
+}
+
+);
+
+imageScaleInput.addEventListener(
+"keydown",
+event => {
+
+    if (
+        event.key === "Enter"
+    ) {
+
+        applyImageScaleInput();
+
+        imageScaleInput.blur();
+
+    }
+
+}
+
+);
+
+// ======================================
+// グリッド間隔スライダー
+// ======================================
+
+gridSizeSlider.addEventListener(
+"input",
+() => {
+
+    gridSize =
+        Number(
+            gridSizeSlider.value
+        );
+
+    updateGrid();
+
+}
+
+);
 
 // ======================================
 // 色変更
 // ======================================
 
 colorButton.addEventListener(
-    "click",
-    () => {
+"click",
+() => {
 
-        gridColorIndex++;
+    gridColorIndex++;
 
-        if (
-            gridColorIndex >=
-            gridColors.length
-        ) {
+    if (
+        gridColorIndex >=
+        gridColors.length
+    ) {
 
-            gridColorIndex = 0;
-
-        }
-
-        updateGrid();
+        gridColorIndex = 0;
 
     }
-);
 
+    updateGrid();
+
+}
+
+);
 
 // ======================================
 // 太さ変更
 // ======================================
 
 widthButton.addEventListener(
-    "click",
-    () => {
+"click",
+() => {
 
-        const currentWidthIndex =
-            gridWidths.indexOf(
-                gridWidth
-            );
+    const currentWidthIndex =
+        gridWidths.indexOf(
+            gridWidth
+        );
 
-        let nextWidthIndex =
-            currentWidthIndex + 1;
+    let nextWidthIndex =
+        currentWidthIndex + 1;
 
-        if (
-            nextWidthIndex >=
-            gridWidths.length
-        ) {
+    if (
+        nextWidthIndex >=
+        gridWidths.length
+    ) {
 
-            nextWidthIndex = 0;
-
-        }
-
-        gridWidth =
-            gridWidths[
-                nextWidthIndex
-            ];
-
-        updateGrid();
+        nextWidthIndex = 0;
 
     }
-);
 
+    gridWidth =
+        gridWidths[
+            nextWidthIndex
+        ];
+
+    updateGrid();
+
+}
+
+);
 
 // ======================================
 // 画像読み込み・追加
 // ======================================
 
 imageInput.addEventListener(
-    "change",
-    () => {
+"change",
+() => {
 
-        const files =
-            Array.from(
-                imageInput.files
-            );
-
-        if (
-            files.length === 0
-        ) {
-            return;
-        }
-
-
-        // ==============================
-        // 追加する画像を作成
-        // ==============================
-
-        const newImages =
-            files.map(
-                file => {
-
-                    const image =
-                        new Image();
-
-                    image.src =
-                        URL.createObjectURL(
-                            file
-                        );
-
-                    return {
-
-                        image: image,
-
-                        name: file.name,
-
-                        id:
-                            crypto.randomUUID()
-
-                    };
-
-                }
-            );
-
-
-        // ==============================
-        // 既存画像の後ろに追加
-        // ==============================
-
-        const oldImageCount =
-            images.length;
-
-        images.push(
-            ...newImages
+    const files =
+        Array.from(
+            imageInput.files
         );
 
+    if (
+        files.length === 0
+    ) {
 
-        // ==============================
-        // 一覧更新
-        // ==============================
+        return;
 
-        createImageList();
+    }
 
+    // ==============================
+    // 追加する画像を作成
+    // ==============================
 
-        // ==============================
-        // 最初の画像だった場合
-        // ==============================
+    const newImages =
+        files.map(
+            file => {
 
-        if (
-            oldImageCount === 0
-        ) {
+                const image =
+                    new Image();
 
-            currentIndex = 0;
+                image.src =
+                    URL.createObjectURL(
+                        file
+                    );
 
-            const firstImage =
-                images[0].image;
+                return {
 
-            if (
-                firstImage.complete
-            ) {
+                    image: image,
 
-                showImage(0);
+                    name: file.name,
 
-            } else {
+                    id:
+                        crypto.randomUUID()
 
-                firstImage.addEventListener(
-                    "load",
-                    () => {
-
-                        showImage(0);
-
-                    },
-                    {
-                        once: true
-                    }
-                );
+                };
 
             }
+        );
+
+    // ==============================
+    // 既存画像の後ろに追加
+    // ==============================
+
+    const oldImageCount =
+        images.length;
+
+    images.push(
+        ...newImages
+    );
+
+    // ==============================
+    // 一覧更新
+    // ==============================
+
+    createImageList();
+
+    // ==============================
+    // 最初の画像だった場合
+    // ==============================
+
+    if (
+        oldImageCount === 0
+    ) {
+
+        currentIndex = 0;
+
+        const firstImage =
+            images[0].image;
+
+        if (
+            firstImage.complete
+        ) {
+
+            showImage(0);
 
         } else {
 
-            updateButtons();
+            firstImage.addEventListener(
+                "load",
+                () => {
 
-            updateSelectedImage();
+                    showImage(0);
+
+                },
+                {
+                    once: true
+                }
+            );
 
         }
 
+    } else {
 
-        // ==============================
-        // inputをリセット
-        // ==============================
+        updateButtons();
 
-        imageInput.value = "";
+        updateSelectedImage();
 
     }
-);
 
+    // ==============================
+    // inputをリセット
+    // ==============================
+
+    imageInput.value = "";
+
+}
+
+);
 
 // ======================================
 // 画像一覧作成
@@ -482,365 +590,353 @@ imageInput.addEventListener(
 
 function createImageList() {
 
-    imageList.innerHTML = "";
+imageList.innerHTML = "";
 
-    images.forEach(
-        (item, index) => {
+images.forEach(
+    (item, index) => {
 
-            const element =
-                document.createElement(
-                    "div"
+        const element =
+            document.createElement(
+                "div"
+            );
+
+        element.className =
+            "image-item";
+
+        element.draggable = true;
+
+        element.dataset.index =
+            index;
+
+        // ==========================
+        // サムネイル
+        // ==========================
+
+        const thumbnail =
+            document.createElement(
+                "img"
+            );
+
+        thumbnail.className =
+            "image-thumbnail";
+
+        thumbnail.src =
+            item.image.src;
+
+        thumbnail.alt =
+            item.name;
+
+        // ==========================
+        // ファイル名
+        // ==========================
+
+        const name =
+            document.createElement(
+                "div"
+            );
+
+        name.className =
+            "image-name";
+
+        name.textContent =
+            item.name;
+
+        // ==========================
+        // 上下ボタン
+        // ==========================
+
+        const orderButtons =
+            document.createElement(
+                "div"
+            );
+
+        orderButtons.className =
+            "image-order-buttons";
+
+        const up =
+            document.createElement(
+                "button"
+            );
+
+        up.type = "button";
+
+        up.textContent = "↑";
+
+        up.title = "上へ";
+
+        const down =
+            document.createElement(
+                "button"
+            );
+
+        down.type = "button";
+
+        down.textContent = "↓";
+
+        down.title = "下へ";
+
+        // ==========================
+        // 上へ
+        // ==========================
+
+        up.disabled =
+            index === 0;
+
+        up.addEventListener(
+            "click",
+            event => {
+
+                event.stopPropagation();
+
+                moveImage(
+                    index,
+                    index - 1
                 );
 
-            element.className =
-                "image-item";
+            }
+        );
 
-            element.draggable = true;
+        // ==========================
+        // 下へ
+        // ==========================
 
-            element.dataset.index =
-                index;
+        down.disabled =
+            index ===
+            images.length - 1;
 
+        down.addEventListener(
+            "click",
+            event => {
 
-            // ==========================
-            // サムネイル
-            // ==========================
+                event.stopPropagation();
 
-            const thumbnail =
-                document.createElement(
-                    "img"
+                moveImage(
+                    index,
+                    index + 1
                 );
 
-            thumbnail.className =
-                "image-thumbnail";
+            }
+        );
 
-            thumbnail.src =
-                item.image.src;
+        orderButtons.appendChild(
+            up
+        );
 
-            thumbnail.alt =
-                item.name;
+        orderButtons.appendChild(
+            down
+        );
 
+        // ==========================
+        // 要素を組み立て
+        // ==========================
 
-            // ==========================
-            // ファイル名
-            // ==========================
+        element.appendChild(
+            thumbnail
+        );
 
-            const name =
-                document.createElement(
-                    "div"
+        element.appendChild(
+            name
+        );
+
+        element.appendChild(
+            orderButtons
+        );
+
+        // ==========================
+        // クリック
+        // ==========================
+
+        element.addEventListener(
+            "click",
+            () => {
+
+                showImage(
+                    index
                 );
 
-            name.className =
-                "image-name";
+            }
+        );
 
-            name.textContent =
-                item.name;
+        // ==========================
+        // ドラッグ開始
+        // ==========================
 
+        element.addEventListener(
+            "dragstart",
+            event => {
 
-            // ==========================
-            // 上下ボタン
-            // ==========================
-
-            const orderButtons =
-                document.createElement(
-                    "div"
+                element.classList.add(
+                    "dragging"
                 );
 
-            orderButtons.className =
-                "image-order-buttons";
-
-
-            const up =
-                document.createElement(
-                    "button"
+                event.dataTransfer.setData(
+                    "text/plain",
+                    String(index)
                 );
 
-            up.type = "button";
+            }
+        );
 
-            up.textContent = "↑";
+        // ==========================
+        // ドラッグ終了
+        // ==========================
 
-            up.title = "上へ";
+        element.addEventListener(
+            "dragend",
+            () => {
 
-
-            const down =
-                document.createElement(
-                    "button"
+                element.classList.remove(
+                    "dragging"
                 );
 
-            down.type = "button";
+            }
+        );
 
-            down.textContent = "↓";
+        // ==========================
+        // ドラッグ中
+        // ==========================
 
-            down.title = "下へ";
+        element.addEventListener(
+            "dragover",
+            event => {
 
+                event.preventDefault();
 
-            // 上へ
+            }
+        );
 
-            up.disabled =
-                index === 0;
+        // ==========================
+        // ドロップ
+        // ==========================
 
-            up.addEventListener(
-                "click",
-                event => {
+        element.addEventListener(
+            "drop",
+            event => {
 
-                    event.stopPropagation();
+                event.preventDefault();
+
+                const fromIndex =
+                    Number(
+                        event.dataTransfer
+                            .getData(
+                                "text/plain"
+                            )
+                    );
+
+                const toIndex =
+                    index;
+
+                if (
+                    fromIndex !==
+                    toIndex
+                ) {
 
                     moveImage(
-                        index,
-                        index - 1
-                    );
-
-                }
-            );
-
-
-            // 下へ
-
-            down.disabled =
-                index ===
-                images.length - 1;
-
-            down.addEventListener(
-                "click",
-                event => {
-
-                    event.stopPropagation();
-
-                    moveImage(
-                        index,
-                        index + 1
-                    );
-
-                }
-            );
-
-
-            orderButtons.appendChild(
-                up
-            );
-
-            orderButtons.appendChild(
-                down
-            );
-
-
-            // ==========================
-            // 要素を組み立て
-            // ==========================
-
-            element.appendChild(
-                thumbnail
-            );
-
-            element.appendChild(
-                name
-            );
-
-            element.appendChild(
-                orderButtons
-            );
-
-
-            // ==========================
-            // クリック
-            // ==========================
-
-            element.addEventListener(
-                "click",
-                () => {
-
-                    currentIndex =
-                        index;
-
-                    showImage(
-                        currentIndex
-                    );
-
-                }
-            );
-
-
-            // ==========================
-            // ドラッグ開始
-            // ==========================
-
-            element.addEventListener(
-                "dragstart",
-                event => {
-
-                    element.classList.add(
-                        "dragging"
-                    );
-
-                    event.dataTransfer.setData(
-                        "text/plain",
-                        String(index)
-                    );
-
-                }
-            );
-
-
-            // ==========================
-            // ドラッグ終了
-            // ==========================
-
-            element.addEventListener(
-                "dragend",
-                () => {
-
-                    element.classList.remove(
-                        "dragging"
-                    );
-
-                }
-            );
-
-
-            // ==========================
-            // ドラッグ中
-            // ==========================
-
-            element.addEventListener(
-                "dragover",
-                event => {
-
-                    event.preventDefault();
-
-                }
-            );
-
-
-            // ==========================
-            // ドロップ
-            // ==========================
-
-            element.addEventListener(
-                "drop",
-                event => {
-
-                    event.preventDefault();
-
-                    const fromIndex =
-                        Number(
-                            event.dataTransfer
-                                .getData(
-                                    "text/plain"
-                                )
-                        );
-
-                    const toIndex =
-                        index;
-
-                    if (
-                        fromIndex !==
+                        fromIndex,
                         toIndex
-                    ) {
-
-                        moveImage(
-                            fromIndex,
-                            toIndex
-                        );
-
-                    }
+                    );
 
                 }
-            );
 
+            }
+        );
 
-            imageList.appendChild(
-                element
-            );
+        imageList.appendChild(
+            element
+        );
 
-        }
-    );
+    }
+);
 
-    updateSelectedImage();
+updateSelectedImage();
+
 }
-
 
 // ======================================
 // 画像並び替え
 // ======================================
 
 function moveImage(
-    fromIndex,
-    toIndex
+fromIndex,
+toIndex
 ) {
 
-    if (
-        fromIndex < 0 ||
-        fromIndex >= images.length
-    ) {
-        return;
-    }
+if (
+    fromIndex < 0 ||
+    fromIndex >= images.length
+) {
 
-    if (
-        toIndex < 0 ||
-        toIndex >= images.length
-    ) {
-        return;
-    }
-
-    if (
-        fromIndex === toIndex
-    ) {
-        return;
-    }
-
-
-    const movedImage =
-        images.splice(
-            fromIndex,
-            1
-        )[0];
-
-    images.splice(
-        toIndex,
-        0,
-        movedImage
-    );
-
-
-    // ==============================
-    // 現在位置を補正
-    // ==============================
-
-    if (
-        currentIndex === fromIndex
-    ) {
-
-        currentIndex =
-            toIndex;
-
-    } else if (
-        fromIndex <
-            currentIndex &&
-        toIndex >=
-            currentIndex
-    ) {
-
-        currentIndex--;
-
-    } else if (
-        fromIndex >
-            currentIndex &&
-        toIndex <=
-            currentIndex
-    ) {
-
-        currentIndex++;
-
-    }
-
-
-    createImageList();
-
-    showImage(
-        currentIndex
-    );
+    return;
 
 }
 
+if (
+    toIndex < 0 ||
+    toIndex >= images.length
+) {
+
+    return;
+
+}
+
+if (
+    fromIndex === toIndex
+) {
+
+    return;
+
+}
+
+const movedImage =
+    images.splice(
+        fromIndex,
+        1
+    )[0];
+
+images.splice(
+    toIndex,
+    0,
+    movedImage
+);
+
+// ==============================
+// 現在位置を補正
+// ==============================
+
+if (
+    currentIndex === fromIndex
+) {
+
+    currentIndex =
+        toIndex;
+
+} else if (
+    fromIndex <
+        currentIndex &&
+    toIndex >=
+        currentIndex
+) {
+
+    currentIndex--;
+
+} else if (
+    fromIndex >
+        currentIndex &&
+    toIndex <=
+        currentIndex
+) {
+
+    currentIndex++;
+
+}
+
+createImageList();
+
+showImage(
+    currentIndex
+);
+
+}
 
 // ======================================
 // 選択中画像を表示
@@ -848,36 +944,35 @@ function moveImage(
 
 function updateSelectedImage() {
 
-    const items =
-        imageList.querySelectorAll(
-            ".image-item"
-        );
-
-    items.forEach(
-        (item, index) => {
-
-            if (
-                index ===
-                currentIndex
-            ) {
-
-                item.classList.add(
-                    "selected"
-                );
-
-            } else {
-
-                item.classList.remove(
-                    "selected"
-                );
-
-            }
-
-        }
+const items =
+    imageList.querySelectorAll(
+        ".image-item"
     );
 
-}
+items.forEach(
+    (item, index) => {
 
+        if (
+            index ===
+            currentIndex
+        ) {
+
+            item.classList.add(
+                "selected"
+            );
+
+        } else {
+
+            item.classList.remove(
+                "selected"
+            );
+
+        }
+
+    }
+);
+
+}
 
 // ======================================
 // Canvasに画像を表示
@@ -885,113 +980,191 @@ function updateSelectedImage() {
 
 function showImage(index) {
 
-    const item =
-        images[index];
+// ==============================
+// インデックスチェック
+// ==============================
 
-    if (
-        !item ||
-        !item.image.complete
-    ) {
-        return;
-    }
+if (
+    index < 0 ||
+    index >= images.length
+) {
 
-
-    const image =
-        item.image;
-
-
-    canvas.width =
-        image.naturalWidth;
-
-    canvas.height =
-        image.naturalHeight;
-
-
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-
-    ctx.drawImage(
-        image,
-        0,
-        0
-    );
-
-
-    imageInfo.textContent =
-        `画像 ${index + 1} / ${images.length}`;
-
-
-    /*
-       imageScale / imageX / imageY は
-       ここでは変更しない。
-
-       そのため、画像を切り替えても
-       切り替え前の拡大率と位置が
-       そのまま適用される。
-    */
-
-    updateImageTransform();
-
-    updateButtons();
-
-    updateSelectedImage();
+    return;
 
 }
 
+const item =
+    images[index];
+
+if (!item) {
+
+    return;
+
+}
+
+// ==============================
+// 現在画像を更新
+// ==============================
+
+currentIndex =
+    index;
+
+const image =
+    item.image;
+
+// ==============================
+// まだ読み込み中の場合
+// ==============================
+
+if (
+    !image.complete ||
+    image.naturalWidth === 0
+) {
+
+    image.addEventListener(
+        "load",
+        () => {
+
+            if (
+                currentIndex === index
+            ) {
+
+                showImage(index);
+
+            }
+
+        },
+        {
+            once: true
+        }
+    );
+
+    return;
+
+}
+
+// ==============================
+// Canvasサイズ設定
+// ==============================
+
+canvas.width =
+    image.naturalWidth;
+
+canvas.height =
+    image.naturalHeight;
+
+// ==============================
+// Canvasをクリア
+// ==============================
+
+ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+);
+
+// ==============================
+// 画像描画
+// ==============================
+
+ctx.drawImage(
+    image,
+    0,
+    0
+);
+
+// ==============================
+// 画像情報
+// ==============================
+
+imageInfo.textContent =
+    `画像 ${index + 1} / ${images.length}`;
+
+// ==============================
+// 拡大率・位置を維持
+// ==============================
+
+updateImageTransform();
+
+// ==============================
+// ボタン状態
+// ==============================
+
+updateButtons();
+
+// ==============================
+// 選択状態
+// ==============================
+
+updateSelectedImage();
+
+}
 
 // ======================================
 // 前の画像
 // ======================================
 
 prevButton.addEventListener(
-    "click",
-    () => {
+"click",
+() => {
 
-        if (
-            currentIndex > 0
-        ) {
+    if (
+        images.length === 0
+    ) {
 
-            currentIndex--;
-
-            showImage(
-                currentIndex
-            );
-
-        }
+        return;
 
     }
-);
 
+    if (
+        currentIndex <= 0
+    ) {
+
+        return;
+
+    }
+
+    showImage(
+        currentIndex - 1
+    );
+
+}
+
+);
 
 // ======================================
 // 次の画像
 // ======================================
 
 nextButton.addEventListener(
-    "click",
-    () => {
+"click",
+() => {
 
-        if (
-            currentIndex <
-            images.length - 1
-        ) {
+    if (
+        images.length === 0
+    ) {
 
-            currentIndex++;
-
-            showImage(
-                currentIndex
-            );
-
-        }
+        return;
 
     }
-);
 
+    if (
+        currentIndex >=
+        images.length - 1
+    ) {
+
+        return;
+
+    }
+
+    showImage(
+        currentIndex + 1
+    );
+
+}
+
+);
 
 // ======================================
 // 画像切り替えボタン状態
@@ -999,120 +1172,118 @@ nextButton.addEventListener(
 
 function updateButtons() {
 
-    prevButton.disabled =
-        images.length === 0 ||
-        currentIndex === 0;
+prevButton.disabled =
+    images.length === 0 ||
+    currentIndex === 0;
 
+nextButton.disabled =
+    images.length === 0 ||
+    currentIndex ===
+    images.length - 1;
 
-    nextButton.disabled =
-        images.length === 0 ||
-        currentIndex ===
-        images.length - 1;
+if (
+    images.length === 0
+) {
 
-
-    if (
-        images.length === 0
-    ) {
-
-        imageInfo.textContent =
-            "画像 0 / 0";
-
-    }
+    imageInfo.textContent =
+        "画像 0 / 0";
 
 }
 
+}
 
 // ======================================
 // 画像移動
 // ======================================
 
 function moveCurrentImage(
-    deltaX,
-    deltaY
+deltaX,
+deltaY
 ) {
 
-    if (
-        images.length === 0
-    ) {
-        return;
-    }
+if (
+    images.length === 0
+) {
 
+    return;
 
-    imageX += deltaX;
-
-    imageY += deltaY;
-
-    updateImageTransform();
 }
 
+imageX += deltaX;
+
+imageY += deltaY;
+
+updateImageTransform();
+
+}
 
 // ======================================
 // 上
 // ======================================
 
 upButton.addEventListener(
-    "click",
-    () => {
+"click",
+() => {
 
-        moveCurrentImage(
-            0,
-            -MOVE_STEP
-        );
+    moveCurrentImage(
+        0,
+        -MOVE_STEP
+    );
 
-    }
+}
+
 );
-
 
 // ======================================
 // 下
 // ======================================
 
 downButton.addEventListener(
-    "click",
-    () => {
+"click",
+() => {
 
-        moveCurrentImage(
-            0,
-            MOVE_STEP
-        );
+    moveCurrentImage(
+        0,
+        MOVE_STEP
+    );
 
-    }
+}
+
 );
-
 
 // ======================================
 // 左
 // ======================================
 
 leftButton.addEventListener(
-    "click",
-    () => {
+"click",
+() => {
 
-        moveCurrentImage(
-            -MOVE_STEP,
-            0
-        );
+    moveCurrentImage(
+        -MOVE_STEP,
+        0
+    );
 
-    }
+}
+
 );
-
 
 // ======================================
 // 右
 // ======================================
 
 rightButton.addEventListener(
-    "click",
-    () => {
+"click",
+() => {
 
-        moveCurrentImage(
-            MOVE_STEP,
-            0
-        );
+    moveCurrentImage(
+        MOVE_STEP,
+        0
+    );
 
-    }
+}
+
 );
-
 
 // ======================================
 // 画像をドラッグ
@@ -1128,151 +1299,143 @@ let startImageX = 0;
 
 let startImageY = 0;
 
-
 canvas.addEventListener(
-    "pointerdown",
-    event => {
+"pointerdown",
+event => {
 
-        if (
-            images.length === 0
-        ) {
-            return;
-        }
+    if (
+        images.length === 0
+    ) {
 
-
-        /*
-           タッチ操作時のピンチ開始では
-           1本指ドラッグを開始しない。
-        */
-
-        if (
-            event.pointerType === "touch"
-        ) {
-
-            return;
-
-        }
-
-
-        dragging = true;
-
-
-        startPointerX =
-            event.clientX;
-
-        startPointerY =
-            event.clientY;
-
-
-        startImageX =
-            imageX;
-
-        startImageY =
-            imageY;
-
-
-        canvas.setPointerCapture(
-            event.pointerId
-        );
-
-
-        event.preventDefault();
+        return;
 
     }
-);
 
+    /*
+       タッチ操作時は
+       1本指ドラッグを開始しない。
+    */
 
-canvas.addEventListener(
-    "pointermove",
-    event => {
+    if (
+        event.pointerType === "touch"
+    ) {
 
-        if (!dragging) {
-            return;
-        }
-
-
-        const deltaX =
-            event.clientX -
-            startPointerX;
-
-        const deltaY =
-            event.clientY -
-            startPointerY;
-
-
-        imageX =
-            startImageX +
-            deltaX;
-
-        imageY =
-            startImageY +
-            deltaY;
-
-
-        updateImageTransform();
-
-
-        event.preventDefault();
+        return;
 
     }
-);
 
+    dragging = true;
+
+    startPointerX =
+        event.clientX;
+
+    startPointerY =
+        event.clientY;
+
+    startImageX =
+        imageX;
+
+    startImageY =
+        imageY;
+
+    canvas.setPointerCapture(
+        event.pointerId
+    );
+
+    event.preventDefault();
+
+}
+
+);
 
 canvas.addEventListener(
-    "pointerup",
-    event => {
+"pointermove",
+event => {
 
-        dragging = false;
+    if (!dragging) {
 
-        event.preventDefault();
+        return;
 
     }
-);
 
+    const deltaX =
+        event.clientX -
+        startPointerX;
+
+    const deltaY =
+        event.clientY -
+        startPointerY;
+
+    imageX =
+        startImageX +
+        deltaX;
+
+    imageY =
+        startImageY +
+        deltaY;
+
+    updateImageTransform();
+
+    event.preventDefault();
+
+}
+
+);
 
 canvas.addEventListener(
-    "pointercancel",
-    () => {
+"pointerup",
+event => {
 
-        dragging = false;
+    dragging = false;
 
-    }
+    event.preventDefault();
+
+}
+
 );
 
+canvas.addEventListener(
+"pointercancel",
+() => {
+
+    dragging = false;
+
+}
+
+);
 
 // ======================================
 // PC：マウスホイール
 // ======================================
 
 canvas.addEventListener(
-    "wheel",
-    event => {
+"wheel",
+event => {
 
-        event.preventDefault();
+    event.preventDefault();
 
+    if (
+        event.deltaY < 0
+    ) {
 
-        if (
-            event.deltaY < 0
-        ) {
+        changeImageScale(
+            SCALE_STEP
+        );
 
-            changeImageScale(
-                SCALE_STEP
-            );
+    } else {
 
-        } else {
+        changeImageScale(
+            -SCALE_STEP
+        );
 
-            changeImageScale(
-                -SCALE_STEP
-            );
-
-        }
-
-    },
-    {
-        passive: false
     }
-);
 
+},
+{
+    passive: false
+}
+
+);
 
 // ======================================
 // スマホ：2本指ピンチ
@@ -1282,259 +1445,245 @@ let pinchStartDistance = 0;
 
 let pinchStartScale = 1;
 
-
 function getTouchDistance(
-    touch1,
-    touch2
+touch1,
+touch2
 ) {
 
-    const dx =
-        touch2.clientX -
-        touch1.clientX;
+const dx =
+    touch2.clientX -
+    touch1.clientX;
 
-    const dy =
-        touch2.clientY -
-        touch1.clientY;
+const dy =
+    touch2.clientY -
+    touch1.clientY;
 
-
-    return Math.sqrt(
-        dx * dx +
-        dy * dy
-    );
+return Math.sqrt(
+    dx * dx +
+    dy * dy
+);
 
 }
 
-
 canvas.addEventListener(
-    "touchstart",
-    event => {
+"touchstart",
+event => {
 
-        if (
-            event.touches.length !== 2
-        ) {
-            return;
-        }
+    if (
+        event.touches.length !== 2
+    ) {
 
+        return;
 
-        if (
-            images.length === 0
-        ) {
-            return;
-        }
-
-
-        pinchStartDistance =
-            getTouchDistance(
-                event.touches[0],
-                event.touches[1]
-            );
-
-
-        pinchStartScale =
-            imageScale;
-
-
-        event.preventDefault();
-
-    },
-    {
-        passive: false
     }
+
+    if (
+        images.length === 0
+    ) {
+
+        return;
+
+    }
+
+    pinchStartDistance =
+        getTouchDistance(
+            event.touches[0],
+            event.touches[1]
+        );
+
+    pinchStartScale =
+        imageScale;
+
+    event.preventDefault();
+
+},
+{
+    passive: false
+}
+
 );
 
-
 canvas.addEventListener(
-    "touchmove",
-    event => {
+"touchmove",
+event => {
 
-        if (
-            event.touches.length !== 2
-        ) {
-            return;
-        }
+    if (
+        event.touches.length !== 2
+    ) {
 
+        return;
 
-        if (
-            images.length === 0
-        ) {
-            return;
-        }
-
-
-        const currentDistance =
-            getTouchDistance(
-                event.touches[0],
-                event.touches[1]
-            );
-
-
-        if (
-            pinchStartDistance <= 0
-        ) {
-            return;
-        }
-
-
-        const scale =
-            currentDistance /
-            pinchStartDistance;
-
-
-        let newScale =
-            pinchStartScale *
-            scale;
-
-
-        newScale =
-            Math.max(
-                MIN_IMAGE_SCALE,
-                Math.min(
-                    MAX_IMAGE_SCALE,
-                    newScale
-                )
-            );
-
-
-        imageScale =
-            newScale;
-
-
-        updateImageTransform();
-
-
-        event.preventDefault();
-
-    },
-    {
-        passive: false
     }
-);
 
+    if (
+        images.length === 0
+    ) {
+
+        return;
+
+    }
+
+    const currentDistance =
+        getTouchDistance(
+            event.touches[0],
+            event.touches[1]
+        );
+
+    if (
+        pinchStartDistance <= 0
+    ) {
+
+        return;
+
+    }
+
+    const scale =
+        currentDistance /
+        pinchStartDistance;
+
+    let newScale =
+        pinchStartScale *
+        scale;
+
+    newScale =
+        Math.max(
+            MIN_IMAGE_SCALE,
+            Math.min(
+                MAX_IMAGE_SCALE,
+                newScale
+            )
+        );
+
+    imageScale =
+        newScale;
+
+    updateImageTransform();
+
+    event.preventDefault();
+
+},
+{
+    passive: false
+}
+
+);
 
 // ======================================
 // 画像位置・拡大率リセット
 // ======================================
 
 resetImageTransformButton.addEventListener(
-    "click",
-    () => {
+"click",
+() => {
 
-        imageScale = 1;
+    imageScale = 1;
 
-        imageX = 0;
+    imageX = 0;
 
-        imageY = 0;
+    imageY = 0;
 
-        updateImageTransform();
+    updateImageTransform();
 
-    }
+}
+
 );
-
 
 // ======================================
 // すべての画像をリセット
 // ======================================
 
 resetImagesButton.addEventListener(
-    "click",
-    () => {
+"click",
+() => {
 
-        // ==============================
-        // Blob URLを解放
-        // ==============================
+    // ==============================
+    // Blob URLを解放
+    // ==============================
 
-        images.forEach(
-            item => {
+    images.forEach(
+        item => {
 
-                if (
+            if (
+                item.image.src
+                    .startsWith("blob:")
+            ) {
+
+                URL.revokeObjectURL(
                     item.image.src
-                        .startsWith("blob:")
-                ) {
-
-                    URL.revokeObjectURL(
-                        item.image.src
-                    );
-
-                }
+                );
 
             }
-        );
 
+        }
+    );
 
-        // ==============================
-        // 画像データを削除
-        // ==============================
+    // ==============================
+    // 画像データを削除
+    // ==============================
 
-        images = [];
+    images = [];
 
-        currentIndex = 0;
+    currentIndex = 0;
 
+    // ==============================
+    // 画像位置・拡大率をリセット
+    // ==============================
 
-        // ==============================
-        // 画像位置・拡大率をリセット
-        // ==============================
+    imageScale = 1;
 
-        imageScale = 1;
+    imageX = 0;
 
-        imageX = 0;
+    imageY = 0;
 
-        imageY = 0;
+    // ==============================
+    // Canvasをクリア
+    // ==============================
 
+    canvas.width = 300;
 
-        // ==============================
-        // Canvasをクリア
-        // ==============================
+    canvas.height = 150;
 
-        canvas.width = 300;
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
 
-        canvas.height = 150;
+    // ==============================
+    // Canvasの変形をリセット
+    // ==============================
 
-        ctx.clearRect(
-            0,
-            0,
-            canvas.width,
-            canvas.height
-        );
+    updateImageTransform();
 
+    // ==============================
+    // 画像一覧をクリア
+    // ==============================
 
-        // ==============================
-        // Canvasの変形をリセット
-        // ==============================
+    imageList.innerHTML = "";
 
-        updateImageTransform();
+    // ==============================
+    // 画像情報をリセット
+    // ==============================
 
+    imageInfo.textContent =
+        "画像 0 / 0";
 
-        // ==============================
-        // 画像一覧をクリア
-        // ==============================
+    // ==============================
+    // ボタン状態を更新
+    // ==============================
 
-        imageList.innerHTML = "";
+    updateButtons();
 
+    // ==============================
+    // ファイル入力をリセット
+    // ==============================
 
-        // ==============================
-        // 画像情報をリセット
-        // ==============================
+    imageInput.value = "";
 
-        imageInfo.textContent =
-            "画像 0 / 0";
+}
 
-
-        // ==============================
-        // ボタン状態を更新
-        // ==============================
-
-        updateButtons();
-
-
-        // ==============================
-        // ファイル入力をリセット
-        // ==============================
-
-        imageInput.value = "";
-
-    }
 );
-
 
 // ======================================
 // 初期化
