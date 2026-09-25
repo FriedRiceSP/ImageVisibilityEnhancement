@@ -1,177 +1,173 @@
-<!DOCTYPE html> <html lang="ja"> <head> <meta charset="UTF-8">
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画像補助線ツール</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>木のストラクチャープレビューを見やすくしようの会</h1>
 
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0">
+    <!-- ================================== ファイル操作 ================================== -->
+    <div class="file-controls">
+        <label id="dropArea" for="imageInput">
+            <div class="drop-title">画像ファイルをここにドロップ</div>
+            <div class="drop-subtitle">またはクリックしてファイルを選択</div>
+            <input type="file" id="imageInput" accept="image/*" multiple>
+        </label>
+        <button id="resetImagesButton" type="button">読み込んだ画像をすべてリセット</button>
+    </div>
 
-<title>画像補助線ツール</title> <link rel="stylesheet" href="style.css" > </head> <body> <h1>画像補助線ツール</h1> <!-- ================================== ファイル操作 ================================== --> <div class="file-controls">
-<input
-    type="file"
-    id="imageInput"
-    accept="image/*"
-    multiple
->
+    <!-- ================================== 画像一覧 ================================== -->
+    <div class="image-list-area">
+        <h2>画像一覧</h2>
+        <p class="list-help">画像をドラッグして並び替えできます</p>
+        <div id="imageList"></div>
+    </div>
 
-<button
-    id="resetImagesButton"
-    type="button"
->
-    読み込んだ画像をすべてリセット
-</button>
+    <!-- ================================== 画像領域選択 ================================== -->
+    <div class="image-selection-area">
+        <h2>画像領域選択</h2>
 
-</div> <!-- ================================== 画像一覧 ================================== --> <div class="image-list-area">
-<h2>画像一覧</h2>
+        <div id="selectionContainer" class="selection-container">
+            <img id="selectionImage" class="selection-image" alt="選択中の画像">
+            <div id="selectionFrame" class="selection-frame">
+                <div class="resize-handle handle-top" data-edge="top"></div>
+                <div class="resize-handle handle-bottom" data-edge="bottom"></div>
+                <div class="resize-handle handle-left" data-edge="left"></div>
+                <div class="resize-handle handle-right" data-edge="right"></div>
+            </div>
+        </div>
 
-<p class="list-help">
-    画像をドラッグして並び替えできます
-</p>
+        <div class="selection-move-controls">
+            <button id="moveUpButton" type="button">↑</button>
+            <div>
+                <button id="moveLeftButton" type="button">←</button>
+                <button id="moveRightButton" type="button">→</button>
+            </div>
+            <button id="moveDownButton" type="button">↓</button>
+        </div>
 
-<div id="imageList"></div>
+        <div class="selection-size-controls">
+            <div class="size-control-row">
+                <label for="selectionWidthSlider">幅</label>
+                <input id="selectionWidthSlider" type="range" min="1" max="1" value="1">
+                <span id="selectionWidthValue">1 px</span>
+            </div>
+            <div class="size-control-row">
+                <label for="selectionHeightSlider">高さ</label>
+                <input id="selectionHeightSlider" type="range" min="1" max="1" value="1">
+                <span id="selectionHeightValue">1 px</span>
+            </div>
+        </div>
 
-</div> <!-- ================================== 画像切り替え ================================== --> <div class="image-controls">
-<button
-    id="prevButton"
-    type="button"
-    disabled
->
-    ← 前の画像
-</button>
+        <div class="selection-instruction">
+            <h3>枠の動かし方</h3>
+            <p>枠の内側をドラッグすると、選択領域を移動できます。</p>
+            <p>枠の辺をドラッグすると、選択領域の大きさを変更できます。</p>
+            <p>スマホでは1本指で操作してください。</p>
+        </div>
 
-<span id="imageInfo">
-    画像 0 / 0
-</span>
+        <div id="selectionInfo" class="selection-info">選択領域：-</div>
+    </div>
 
-<button
-    id="nextButton"
-    type="button"
-    disabled
->
-    次の画像 →
-</button>
+    <!-- ================================== 選択領域画像 ＆ グリッド操作 ================================== -->
+    <div class="selected-image-area">
+        <h2>選択領域</h2>
 
-</div> <!-- ================================== Canvas ================================== --> <div class="canvas-container">
-<canvas id="canvas"></canvas>
+        <div id="selectedCanvasContainer" class="selected-canvas-container">
+            <canvas id="selectedCanvas"></canvas>
+        </div>
 
-<!-- グリッド -->
-<div id="grid"></div>
+        <div class="image-switch-controls">
+            <button id="previousImageButton" type="button">← 前の画像</button>
+            <span id="currentImageValue">0 / 0</span>
+            <button id="nextImageButton" type="button">次の画像 →</button>
+        </div>
 
-</div> <!-- ================================== 画像移動 ================================== --> <div class="grid-controls">
-<button
-    id="upButton"
-    type="button"
->
-    ↑
-</button>
+        <button id="toggleGridButton" type="button" class="grid-toggle-button">グリッド非表示</button>
 
-<div>
+        <!-- ================================== グリッドコントローラー ================================== -->
+        <div id="gridControls" class="grid-controls-area">
+            <h3>グリッド操作設定</h3>
 
-    <button
-        id="leftButton"
-        type="button"
-    >
-        ←
-    </button>
+            <!-- 移動（ボタン） -->
+            <div class="control-group">
+                <label>位置移動</label>
+                <div class="grid-move-buttons">
+                    <button id="gridMoveUp" type="button">↑</button>
+                    <div>
+                        <button id="gridMoveLeft" type="button">←</button>
+                        <button id="gridMoveRight" type="button">→</button>
+                    </div>
+                    <button id="gridMoveDown" type="button">↓</button>
+                </div>
+            </div>
 
-    <button
-        id="rightButton"
-        type="button"
-    >
-        →
-    </button>
+            <!-- 拡大縮小 -->
+            <div class="control-group">
+                <label for="gridScaleSlider">拡大縮小</label>
+                <div class="slider-row">
+                    <input id="gridScaleSlider" type="range" min="0.2" max="3.0" step="0.05" value="1.0">
+                    <span id="gridScaleValue">100%</span>
+                </div>
+            </div>
 
-</div>
+            <!-- 増減 -->
+            <div class="control-group">
+                <label>グリッド数変更（現在: <span id="gridCountDisplay">横5列 × 縦5行</span>）</label>
+                <div class="grid-count-buttons">
+                    <div class="btn-row">
+                        <span>縦列（左右）:</span>
+                        <button id="addGridCol" type="button">縦列の追加</button>
+                        <button id="removeGridCol" type="button">縦列の削除</button>
+                    </div>
+                    <div class="btn-row">
+                        <span>横列（上下）:</span>
+                        <button id="addGridRow" type="button">横列の追加</button>
+                        <button id="removeGridRow" type="button">横列の削除</button>
+                    </div>
+                </div>
+            </div>
 
-<button
-    id="downButton"
-    type="button"
->
-    ↓
-</button>
+            <!-- 前画像オーバーレイ機能 -->
+            <div class="control-group">
+                <label>前画像オーバーレイ（直前の画像を重ねて表示）</label>
+                <button id="togglePrevOverlayButton" type="button" class="grid-toggle-button" style="margin-top:0; margin-bottom:8px;">前画像重ね表示: OFF</button>
+                <div class="slider-row">
+                    <label for="prevOverlayOpacitySlider" style="margin-bottom:0; font-weight:normal; width:auto;">透明度</label>
+                    <input id="prevOverlayOpacitySlider" type="range" min="0.1" max="0.9" step="0.01" value="0.5">
+                    <span id="prevOverlayOpacityValue">75%</span>
+                </div>
+            </div>
 
-</div> <!-- ================================== 画像拡大縮小 ================================== --> <div class="grid-scale-controls">
-<button
-    id="zoomOutButton"
-    type="button"
->
-    −
-</button>
+            <!-- 色変更 -->
+            <div class="control-group">
+                <label>グリッドの色</label>
+                <div id="gridColorPalette" class="color-palette">
+                    <button type="button" class="color-btn active" data-color="#ff0000" style="background:#ff0000;" title="赤"></button>
+                    <button type="button" class="color-btn" data-color="#00ff00" style="background:#00ff00;" title="緑"></button>
+                    <button type="button" class="color-btn" data-color="#0066ff" style="background:#0066ff;" title="青"></button>
+                    <button type="button" class="color-btn" data-color="#ffff00" style="background:#ffff00;" title="黄色"></button>
+                    <button type="button" class="color-btn" data-color="#00ffff" style="background:#00ffff;" title="水色"></button>
+                    <button type="button" class="color-btn" data-color="#ff00ff" style="background:#ff00ff;" title="赤紫"></button>
+                    <button type="button" class="color-btn" data-color="#000000" style="background:#000000;" title="黒"></button>
+                    <button type="button" class="color-btn" data-color="#ffffff" style="background:#ffffff; border:1px solid #ccc;" title="白"></button>
+                </div>
+            </div>
 
-<input
-    id="imageScaleInput"
-    type="number"
-    min="10"
-    max="500"
-    step="5"
-    value="100"
-    aria-label="画像拡大率"
->
+            <!-- 太さ変更 -->
+            <div class="control-group">
+                <label for="gridLineWidthSlider">線の太さ</label>
+                <div class="slider-row">
+                    <input id="gridLineWidthSlider" type="range" min="1" max="10" step="1" value="2">
+                    <span id="gridLineWidthValue">2 px</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<span>%</span>
-
-<button
-    id="zoomInButton"
-    type="button"
->
-    ＋
-</button>
-
-</div> <!-- ================================== グリッド間隔 ================================== --> <div class="grid-size-controls">
-<label for="gridSizeSlider">
-    グリッド間隔
-</label>
-
-<input
-    id="gridSizeSlider"
-    type="range"
-    min="10"
-    max="200"
-    step="1"
-    value="50"
->
-
-<span id="gridSizeValue">
-    50 px
-</span>
-
-</div> <!-- ================================== 画像位置・拡大率リセット ================================== --> <div class="image-transform-reset">
-<button
-    id="resetImageTransformButton"
-    type="button"
->
-    画像の位置・拡大率をリセット
-</button>
-
-</div> <!-- ================================== グリッド色・太さ ================================== --> <div class="grid-style-controls">
-<button
-    id="colorButton"
-    type="button"
->
-    色変更
-</button>
-
-<span id="gridColorInfo">
-    赤
-</span>
-
-
-<button
-    id="widthButton"
-    type="button"
->
-    太さ変更
-</button>
-
-<span id="gridWidthInfo">
-    1 px
-</span>
-
-</div> <!-- ================================== 操作説明 ================================== --> <p class="grid-help">
-画像をドラッグして移動できます<br>
-
-PC：マウスホイールで画像を拡大・縮小<br>
-
-スマホ：2本指でピンチして画像を拡大・縮小<br>
-
-画像を切り替えても、拡大率と位置は維持されます
-
-</p> <script src="main.js"></script> </body> </html>
+    <script src="main.js"></script>
+</body>
+</html>

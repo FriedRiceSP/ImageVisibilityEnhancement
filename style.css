@@ -1,694 +1,518 @@
 body {
-
-font-family: sans-serif;
-
-text-align: center;
-
-margin: 20px;
-
-
+    font-family: sans-serif;
+    text-align: center;
+    margin: 20px;
 }
 
 /* ======================================
 ファイル操作
 ====================================== */
-
 .file-controls {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
 
-margin-top: 15px;
+#dropArea {
+    width: min(700px, 90vw);
+    min-height: 180px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border: 3px dashed #aaa;
+    border-radius: 12px;
+    background: #f8f8f8;
+    color: #555;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
 
-display: flex;
+#dropArea:hover {
+    background: #f0f0f0;
+    border-color: #777;
+}
 
-justify-content: center;
+#dropArea.dragover {
+    background: #e8f2ff;
+    border-color: #4285f4;
+}
 
-align-items: center;
+#dropArea .drop-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #444;
+}
 
-flex-wrap: wrap;
+#dropArea .drop-subtitle {
+    font-size: 14px;
+    color: #777;
+}
 
-gap: 10px;
-
-
+#imageInput {
+    display: none;
 }
 
 #resetImagesButton {
-
-padding: 8px 14px;
-
-font-size: 14px;
-
-color: white;
-
-background: #d9534f;
-
-border: 1px solid #c9302c;
-
-border-radius: 6px;
-
-cursor: pointer;
-
-
+    padding: 9px 16px;
+    font-size: 14px;
+    color: white;
+    background: #d9534f;
+    border: 1px solid #c9302c;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
 #resetImagesButton:hover {
-
-background: #c9302c;
-
-
+    background: #c9302c;
 }
 
 #resetImagesButton:active {
-
-background: #ac2925;
-
-
+    background: #ac2925;
 }
 
 /* ======================================
 画像一覧
 ====================================== */
-
 .image-list-area {
-
-max-width: 700px;
-
-margin: 25px auto 0;
-
-
+    width: min(700px, 90vw);
+    margin: 30px auto 0;
 }
 
 .image-list-area h2 {
-
-margin-bottom: 5px;
-
-font-size: 20px;
-
-
+    margin-bottom: 5px;
+    font-size: 20px;
 }
 
 .list-help {
-
-margin-top: 5px;
-
-color: #666;
-
-font-size: 14px;
-
-
+    margin-top: 5px;
+    color: #666;
+    font-size: 14px;
 }
 
 #imageList {
-
-display: flex;
-
-flex-direction: column;
-
-gap: 8px;
-
-margin-top: 15px;
-
-
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 15px;
 }
 
 .image-item {
-
-display: flex;
-
-align-items: center;
-
-gap: 10px;
-
-padding: 8px;
-
-border: 1px solid #ccc;
-
-border-radius: 6px;
-
-background: #f8f8f8;
-
-cursor: grab;
-
-user-select: none;
-
-
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #f8f8f8;
+    cursor: grab;
+    user-select: none;
 }
 
 .image-item:active {
-
-cursor: grabbing;
-
-
-}
-
-.image-item.selected {
-
-border: 2px solid #4285f4;
-
-background: #eef5ff;
-
-
+    cursor: grabbing;
 }
 
 .image-item.dragging {
-
-opacity: 0.4;
-
-
+    opacity: 0.4;
 }
 
 .image-thumbnail {
-
-width: 70px;
-
-height: 50px;
-
-object-fit: contain;
-
-background: #ddd;
-
-border: 1px solid #bbb;
-
-flex-shrink: 0;
-
-
+    width: 70px;
+    height: 50px;
+    object-fit: contain;
+    background: #ddd;
+    border: 1px solid #bbb;
+    flex-shrink: 0;
 }
 
 .image-name {
-
-flex: 1;
-
-min-width: 0;
-
-text-align: left;
-
-overflow: hidden;
-
-text-overflow: ellipsis;
-
-white-space: nowrap;
-
-
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .image-order-buttons {
-
-display: flex;
-
-gap: 4px;
-
-
+    display: flex;
+    gap: 4px;
 }
 
 .image-order-buttons button {
-
-width: 40px;
-
-height: 40px;
-
-border: 1px solid #aaa;
-
-background: #fff;
-
-border-radius: 5px;
-
-font-size: 16px;
-
-cursor: pointer;
-
-
+    width: 40px;
+    height: 40px;
+    border: 1px solid #aaa;
+    background: #fff;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
 }
 
 .image-order-buttons button:hover {
+    background: #eee;
+}
 
-background: #eee;
-
-
+.image-order-buttons button:active {
+    background: #ddd;
 }
 
 .image-order-buttons button:disabled {
-
-opacity: 0.4;
-
-cursor: default;
-
-
+    opacity: 0.4;
+    cursor: default;
 }
 
 /* ======================================
-画像切り替え
+画像領域選択
 ====================================== */
-
-.image-controls {
-
-margin-top: 20px;
-
-display: flex;
-
-justify-content: center;
-
-align-items: center;
-
-gap: 20px;
-
-
+.image-selection-area {
+    width: min(1000px, 95vw);
+    margin: 35px auto 0;
 }
 
-.image-controls button {
-
-padding: 8px 16px;
-
-font-size: 16px;
-
-cursor: pointer;
-
-
+.image-selection-area h2 {
+    margin-bottom: 15px;
+    font-size: 20px;
 }
 
-.image-controls button:disabled {
-
-cursor: default;
-
-opacity: 0.5;
-
-
+.selection-container {
+    position: relative;
+    display: inline-block;
+    max-width: 95vw;
+    line-height: 0;
+    overflow: hidden;
 }
 
-/* ======================================
-Canvas
-====================================== */
-
-.canvas-container {
-
-position: relative;
-
-display: inline-block;
-
-max-width: 100%;
-
-margin-top: 20px;
-
-line-height: 0;
-
-overflow: hidden;
-
-
+.selection-image {
+    display: block;
+    max-width: 95vw;
+    max-height: 70vh;
+    width: auto;
+    height: auto;
 }
 
-canvas {
-
-display: block;
-
-max-width: 100%;
-
-height: auto;
-
-border: 1px solid #ccc;
-
-transform-origin: 0 0;
-
-touch-action: none;
-
-
+.selection-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: 3px solid #4285f4;
+    pointer-events: auto;
+    cursor: move;
+    touch-action: none;
+    background: repeating-linear-gradient(
+        135deg,
+        rgba(66, 133, 244, 0.12) 0px,
+        rgba(66, 133, 244, 0.12) 3px,
+        rgba(66, 133, 244, 0) 3px,
+        rgba(66, 133, 244, 0) 10px
+    );
 }
 
-/* ======================================
-グリッド
-====================================== */
-
-#grid {
-
-position: absolute;
-
-top: 0;
-
-left: 0;
-
-width: 100%;
-
-height: 100%;
-
-background-repeat: repeat;
-
-pointer-events: none;
-
-z-index: 10;
-
-
+.resize-handle {
+    position: absolute;
+    background: transparent;
+    pointer-events: auto;
+    z-index: 2;
+    touch-action: none;
 }
 
-/* ======================================
-画像移動
-====================================== */
+.handle-top { top: -8px; left: 8px; right: 8px; height: 16px; cursor: ns-resize; }
+.handle-bottom { bottom: -8px; left: 8px; right: 8px; height: 16px; cursor: ns-resize; }
+.handle-left { left: -8px; top: 8px; bottom: 8px; width: 16px; cursor: ew-resize; }
+.handle-right { right: -8px; top: 8px; bottom: 8px; width: 16px; cursor: ew-resize; }
 
-.grid-controls {
-
-margin-top: 20px;
-
-display: flex;
-
-flex-direction: column;
-
-align-items: center;
-
-gap: 5px;
-
-
+.selection-move-controls {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
 }
 
-.grid-controls div {
-
-display: flex;
-
-gap: 5px;
-
-
+.selection-move-controls div {
+    display: flex;
+    gap: 5px;
 }
 
-.grid-controls button {
-
-width: 50px;
-
-height: 44px;
-
-font-size: 20px;
-
-cursor: pointer;
-
-border: 1px solid #aaa;
-
-background: #f5f5f5;
-
-border-radius: 6px;
-
-
+.selection-move-controls button {
+    width: 50px;
+    height: 44px;
+    font-size: 20px;
+    cursor: pointer;
+    border: 1px solid #aaa;
+    background: #f5f5f5;
+    border-radius: 6px;
 }
 
-.grid-controls button:hover {
+.selection-move-controls button:hover { background: #e5e5e5; }
+.selection-move-controls button:active { background: #d5d5d5; }
 
-background: #e5e5e5;
-
-
+.selection-size-controls {
+    width: min(600px, 90vw);
+    margin: 20px auto 0;
 }
 
-.grid-controls button:active {
-
-background: #d5d5d5;
-
-
+.size-control-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
 }
 
-/* ======================================
-画像拡大縮小
-====================================== */
+.size-control-row label { width: 45px; text-align: right; }
+.size-control-row input[type="range"] { width: 300px; cursor: pointer; }
+.size-control-row span { width: 80px; text-align: left; font-size: 14px; }
 
-.grid-scale-controls {
-
-margin-top: 15px;
-
-display: flex;
-
-justify-content: center;
-
-align-items: center;
-
-gap: 10px;
-
-
+.selection-instruction {
+    width: min(600px, 90vw);
+    margin: 15px auto 0;
+    padding: 10px 15px;
+    box-sizing: border-box;
+    border: 1px solid #d5e3f7;
+    border-radius: 8px;
+    background: #f5f9ff;
+    color: #555;
+    text-align: left;
+    line-height: 1.5;
 }
 
-.grid-scale-controls button {
-
-width: 50px;
-
-height: 44px;
-
-font-size: 22px;
-
-cursor: pointer;
-
-border: 1px solid #aaa;
-
-background: #f5f5f5;
-
-border-radius: 6px;
-
-
-}
-
-.grid-scale-controls button:hover {
-
-background: #e5e5e5;
-
-
-}
-
-.grid-scale-controls button:active {
-
-background: #d5d5d5;
-
-
-}
-
-#imageScaleInput {
-
-width: 70px;
-
-height: 38px;
-
-padding: 0 5px;
-
-box-sizing: border-box;
-
-font-size: 16px;
-
-text-align: center;
-
-border: 1px solid #aaa;
-
-border-radius: 6px;
-
-
-}
-
-/* ======================================
-グリッド間隔
-====================================== */
-
-.grid-size-controls {
-
-margin-top: 15px;
-
-display: flex;
-
-justify-content: center;
-
-align-items: center;
-
-gap: 10px;
-
-flex-wrap: wrap;
-
-
-}
-
-.grid-size-controls label {
-
-font-size: 15px;
-
-
-}
-
-#gridSizeSlider {
-
-width: 220px;
-
-cursor: pointer;
-
-
-}
-
-#gridSizeValue {
-
-min-width: 60px;
-
-font-size: 15px;
-
-
-}
-
-/* ======================================
-画像位置・拡大率リセット
-====================================== */
-
-.image-transform-reset {
-
-margin-top: 15px;
-
-
-}
-
-#resetImageTransformButton {
-
-padding: 8px 16px;
-
-font-size: 15px;
-
-cursor: pointer;
-
-border: 1px solid #aaa;
-
-background: #f5f5f5;
-
-border-radius: 6px;
-
-
-}
-
-#resetImageTransformButton:hover {
-
-background: #e5e5e5;
-
-
-}
-
-#resetImageTransformButton:active {
-
-background: #d5d5d5;
-
-
-}
-
-/* ======================================
-グリッド色・太さ
-====================================== */
-
-.grid-style-controls {
-
-margin-top: 15px;
-
-display: flex;
-
-justify-content: center;
-
-align-items: center;
-
-flex-wrap: wrap;
-
-gap: 10px;
-
-
-}
-
-.grid-style-controls button {
-
-min-width: 80px;
-
-height: 44px;
-
-padding: 0 12px;
-
-font-size: 15px;
-
-cursor: pointer;
-
-border: 1px solid #aaa;
-
-background: #f5f5f5;
-
-border-radius: 6px;
-
-
-}
-
-.grid-style-controls button:hover {
-
-background: #e5e5e5;
-
-
-}
-
-.grid-style-controls button:active {
-
-background: #d5d5d5;
-
-
-}
-
-.grid-style-controls span {
-
-min-width: 45px;
-
-font-size: 15px;
-
-
-}
-
-/* ======================================
-説明
-====================================== */
-
-.grid-help {
-
-color: #666;
-
-font-size: 14px;
-
-margin-top: 10px;
-
-line-height: 1.6;
-
-
-}
-
-/* ======================================
-スマホ
-====================================== */
-
-@media (max-width: 600px) {
-
-body {
-
-    margin: 10px;
-
-}
-
-
-.image-item {
-
-    padding: 6px;
-
-}
-
-
-.image-thumbnail {
-
-    width: 60px;
-
-    height: 45px;
-
-}
-
-
-.image-order-buttons button {
-
-    width: 40px;
-
-    height: 40px;
-
-}
-
-
-.image-name {
-
+.selection-instruction h3 { margin: 0 0 6px; font-size: 15px; color: #4285f4; }
+.selection-instruction p { margin: 3px 0; font-size: 13px; }
+
+.selection-info {
+    margin-top: 15px;
+    color: #666;
     font-size: 14px;
-
 }
 
-
-#gridSizeSlider {
-
-    width: 180px;
-
+/* ======================================
+選択領域Canvas ＆ グリッド表示
+====================================== */
+.selected-image-area {
+    margin-top: 30px;
 }
 
+.selected-image-area h2 {
+    margin-bottom: 15px;
+}
 
+.selected-canvas-container {
+    position: relative;
+    width: fit-content;
+    max-width: 95vw;
+    max-height: 70vh;
+    margin: 0 auto;
+    line-height: 0;
+    touch-action: none; /* スマホのキャンバス上ピンチ/ドラッグをバッティングさせない */
+}
+
+#selectedCanvas {
+    display: block;
+    max-width: 95vw;
+    max-height: 70vh;
+    width: auto;
+    height: auto;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    background: #eee;
+    cursor: move;
+}
+
+.grid-toggle-button {
+    margin-top: 12px;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: 1px solid #aaa;
+    background: #f5f5f5;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.grid-toggle-button:hover { background: #e5e5e5; }
+.grid-toggle-button:active { background: #d5d5d5; }
+
+.image-switch-controls {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.image-switch-controls button {
+    min-width: 120px;
+    height: 42px;
+    padding: 0 12px;
+    font-size: 14px;
+    border: 1px solid #aaa;
+    background: #f5f5f5;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.image-switch-controls button:hover { background: #e5e5e5; }
+.image-switch-controls button:active { background: #d5d5d5; }
+.image-switch-controls button:disabled { opacity: 0.4; cursor: default; }
+
+#currentImageValue {
+    min-width: 55px;
+    font-size: 14px;
+    color: #666;
+}
+
+/* ======================================
+グリッド設定コントロールパネル
+====================================== */
+.grid-controls-area {
+    width: min(650px, 90vw);
+    margin: 20px auto 0;
+    padding: 15px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+    text-align: left;
+}
+
+.grid-controls-area h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #333;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 6px;
+}
+
+.control-group {
+    margin-bottom: 15px;
+}
+
+.control-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.slider-row input[type="range"] {
+    flex: 1;
+    cursor: pointer;
+}
+
+.slider-row span {
+    width: 60px;
+    font-size: 14px;
+    color: #444;
+}
+
+.grid-move-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: fit-content;
+    gap: 4px;
+}
+
+.grid-move-buttons div {
+    display: flex;
+    gap: 4px;
+}
+
+.grid-move-buttons button {
+    width: 38px;
+    height: 32px;
+    font-size: 16px;
+    cursor: pointer;
+    border: 1px solid #bbb;
+    background: #fff;
+    border-radius: 4px;
+}
+
+.grid-move-buttons button:hover { background: #eee; }
+
+.grid-count-buttons .btn-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.grid-count-buttons span {
+    font-size: 13px;
+    width: 70px;
+    color: #666;
+}
+
+.grid-count-buttons button {
+    padding: 5px 10px;
+    font-size: 12px;
+    border: 1px solid #bbb;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.grid-count-buttons button:hover { background: #eee; }
+
+.color-palette {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.color-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.1s, border-color 0.1s;
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+}
+
+.color-btn.active {
+    border-color: #333 !important;
+    box-sizing: border-box;
+    box-shadow: 0 0 0 2px #fff inset;
+}
+
+/* ======================================
+レスポンシブ
+====================================== */
+@media (max-width: 600px) {
+    body { margin: 10px; }
+    #dropArea { width: 95vw; min-height: 160px; }
+    #dropArea .drop-title { font-size: 18px; }
+    .image-list-area { width: 95vw; }
+    .image-item { padding: 6px; }
+    .image-thumbnail { width: 60px; height: 45px; }
+    .image-name { font-size: 14px; }
+    .image-order-buttons button { width: 40px; height: 40px; }
+    .image-selection-area { width: 95vw; }
+    .selection-image { max-width: 95vw; max-height: 65vh; }
+    .size-control-row { flex-wrap: wrap; }
+    .size-control-row input[type="range"] { width: 200px; }
+    .size-control-row span { width: 65px; }
+    .selection-instruction { width: 95vw; padding: 10px 12px; }
+    .image-switch-controls { gap: 8px; }
+    .image-switch-controls button { min-width: 105px; height: 40px; font-size: 13px; }
 }
