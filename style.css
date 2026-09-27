@@ -478,6 +478,15 @@ body {
     text-align: right;
 }
 
+/* 操作ボタン全般でスマホの長押しメニューやダブルタップズームを無効化 */
+.grid-move-buttons button,
+.zoom-group button,
+.grid-toggle-button {
+    touch-action: manipulation; /* スマホでのダブルタップズーム等を防止 */
+    user-select: none;          /* 長押し時のテキスト選択を防止 */
+    -webkit-user-select: none;  /* Safari/Chrome向け */
+}
+
 .zoom-group button {
     width: 36px;
     height: 30px;

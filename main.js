@@ -1102,13 +1102,10 @@ function attachLongPressListener(button, action, initialDelay = 300, interval = 
     let isPressing = false;
 
     const start = (e) => {
-        if (e.button && e.button !== 0) return;
+        // マウスの主ボタン（左クリック）以外は無視
+        if (e.pointerType === "mouse" && e.button !== 0) return;
         if (isPressing) return;
         isPressing = true;
-
-        if (e.type === 'touchstart') {
-            e.preventDefault();
-        }
 
         action();
 
@@ -1120,6 +1117,7 @@ function attachLongPressListener(button, action, initialDelay = 300, interval = 
     };
 
     const stop = () => {
+        if (!isPressing) return;
         isPressing = false;
         if (timeoutTimer) {
             clearTimeout(timeoutTimer);
@@ -1131,13 +1129,11 @@ function attachLongPressListener(button, action, initialDelay = 300, interval = 
         }
     };
 
-    button.addEventListener('mousedown', start);
-    button.addEventListener('mouseup', stop);
-    button.addEventListener('mouseleave', stop);
-
-    button.addEventListener('touchstart', start, { passive: false });
-    button.addEventListener('touchend', stop);
-    button.addEventListener('touchcancel', stop);
+    // Pointer Events に一本化（PCのマウス・スマホのタッチ双方で安定動作します）
+    button.addEventListener('pointerdown', start);
+    button.addEventListener('pointerup', stop);
+    button.addEventListener('pointerleave', stop);
+    button.addEventListener('pointercancel', stop);
 }
 
 // 1. 選択領域移動ボタン
