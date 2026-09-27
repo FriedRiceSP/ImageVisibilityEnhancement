@@ -525,10 +525,15 @@ body {
 /* 操作ボタン全般でスマホの長押しメニューやダブルタップズームを無効化 */
 .grid-move-buttons button,
 .zoom-group button,
-.grid-toggle-button {
-    touch-action: manipulation; /* スマホでのダブルタップズーム等を防止 */
-    user-select: none;          /* 長押し時のテキスト選択を防止 */
-    -webkit-user-select: none;  /* Safari/Chrome向け */
+.selection-move-controls button,
+.selection-zoom-controls button,
+.grid-toggle-button,
+.image-switch-controls button,
+.image-order-buttons button {
+    touch-action: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -webkit-touch-callout: none !important;
 }
 
 .zoom-group button {

@@ -647,6 +647,8 @@ function getGridHitTest(canvasX, canvasY) {
 }
 
 if (selectedCanvas) {
+    selectedCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
     selectedCanvas.addEventListener("pointerdown", event => {
         if (!gridVisible) return;
         activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
@@ -1066,6 +1068,10 @@ function attachLongPressListener(button, action, initialDelay = 300, interval = 
         if (isPressing) return;
         isPressing = true;
 
+        if (e.cancelable) {
+            e.preventDefault();
+        }
+
         action();
 
         timeoutTimer = setTimeout(() => {
@@ -1087,6 +1093,8 @@ function attachLongPressListener(button, action, initialDelay = 300, interval = 
             intervalTimer = null;
         }
     };
+
+    button.addEventListener('contextmenu', (e) => e.preventDefault());
 
     // Pointer Events に一本化（PCのマウス・スマホのタッチ双方で安定動作します）
     button.addEventListener('pointerdown', start);
