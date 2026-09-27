@@ -224,17 +224,57 @@ body {
     touch-action: none;
 }
 
-.handle-top { top: -8px; left: 8px; right: 8px; height: 16px; cursor: ns-resize; }
-.handle-bottom { bottom: -8px; left: 8px; right: 8px; height: 16px; cursor: ns-resize; }
-.handle-left { left: -8px; top: 8px; bottom: 8px; width: 16px; cursor: ew-resize; }
-.handle-right { right: -8px; top: 8px; bottom: 8px; width: 16px; cursor: ew-resize; }
+.handle-top { top: -8px; left: 16px; right: 16px; height: 16px; cursor: ns-resize; }
+.handle-bottom { bottom: -8px; left: 16px; right: 16px; height: 16px; cursor: ns-resize; }
+.handle-left { left: -8px; top: 16px; bottom: 16px; width: 16px; cursor: ew-resize; }
+.handle-right { right: -8px; top: 16px; bottom: 16px; width: 16px; cursor: ew-resize; }
+
+/* 角ハンドルのスタイル */
+.handle-top-left { top: -10px; left: -10px; width: 20px; height: 20px; cursor: nwse-resize; }
+.handle-top-right { top: -10px; right: -10px; width: 20px; height: 20px; cursor: nesw-resize; }
+.handle-bottom-left { bottom: -10px; left: -10px; width: 20px; height: 20px; cursor: nesw-resize; }
+.handle-bottom-right { bottom: -10px; right: -10px; width: 20px; height: 20px; cursor: nwse-resize; }
+
+/* 領域ボタン群のレイアウト */
+.selection-action-row {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 24px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.selection-move-section, .selection-scale-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.selection-move-section label, .selection-scale-section label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 6px;
+}
 
 .selection-move-controls {
-    margin-top: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 5px;
+}
+
+.selection-zoom-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.selection-zoom-controls button {
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .selection-move-controls div {
@@ -243,13 +283,17 @@ body {
 }
 
 .selection-move-controls button {
-    width: 50px;
-    height: 44px;
-    font-size: 20px;
+    width: 36px;
+    height: 30px;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
-    border: 1px solid #aaa;
-    background: #f5f5f5;
-    border-radius: 6px;
+    border: 1px solid #bbb;
+    background: #fff;
+    border-radius: 4px;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .selection-move-controls button:hover { background: #e5e5e5; }

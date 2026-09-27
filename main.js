@@ -7,11 +7,12 @@ const selectionFrame = document.getElementById("selectionFrame");
 const selectedCanvas = document.getElementById("selectedCanvas");
 const selectedCtx = selectedCanvas ? selectedCanvas.getContext("2d") : null;
 
-const selectionWidthSlider = document.getElementById("selectionWidthSlider");
-const selectionHeightSlider = document.getElementById("selectionHeightSlider");
-const selectionWidthValue = document.getElementById("selectionWidthValue");
-const selectionHeightValue = document.getElementById("selectionHeightValue");
-const selectionInfo = document.getElementById("selectionInfo");
+const selectionZoomInBtn = document.getElementById("selectionZoomInBtn");
+const selectionZoomOutBtn = document.getElementById("selectionZoomOutBtn");
+const selectionScaleXInBtn = document.getElementById("selectionScaleXInBtn");
+const selectionScaleXOutBtn = document.getElementById("selectionScaleXOutBtn");
+const selectionScaleYInBtn = document.getElementById("selectionScaleYInBtn");
+const selectionScaleYOutBtn = document.getElementById("selectionScaleYOutBtn");
 
 // 選択領域移動用ボタン
 const moveUpButton = document.getElementById("moveUpButton");
@@ -379,22 +380,6 @@ function updateSelectionDisplay() {
         selectionFrame.style.height = `${selectionHeight * scaleY}px`;
     }
 
-    if (selectionWidthSlider) {
-        selectionWidthSlider.min = "1";
-        selectionWidthSlider.max = String(image.naturalWidth);
-        selectionWidthSlider.value = String(selectionWidth);
-    }
-
-    if (selectionHeightSlider) {
-        selectionHeightSlider.min = "1";
-        selectionHeightSlider.max = String(image.naturalHeight);
-        selectionHeightSlider.value = String(selectionHeight);
-    }
-
-    if (selectionWidthValue) selectionWidthValue.textContent = `${selectionWidth} px`;
-    if (selectionHeightValue) selectionHeightValue.textContent = `${selectionHeight} px`;
-    if (selectionInfo) selectionInfo.textContent = `選択領域：X ${selectionX} / Y ${selectionY} / 幅 ${selectionWidth} px / 高さ ${selectionHeight} px`;
-
     updateSelectedCanvas();
 }
 
@@ -500,29 +485,6 @@ function drawCustomGrid() {
     selectedCtx.restore();
 }
 
-// ======================================
-// スライダー＆枠操作
-// ======================================
-if (selectionWidthSlider) {
-    selectionWidthSlider.addEventListener("input", () => {
-        if (images.length === 0) return;
-        const image = getCurrentImage().image;
-        const newWidth = Math.max(1, Number(selectionWidthSlider.value));
-        selectionWidth = Math.min(newWidth, image.naturalWidth - selectionX);
-        updateSelectionDisplay();
-    });
-}
-
-if (selectionHeightSlider) {
-    selectionHeightSlider.addEventListener("input", () => {
-        if (images.length === 0) return;
-        const image = getCurrentImage().image;
-        const newHeight = Math.max(1, Number(selectionHeightSlider.value));
-        selectionHeight = Math.min(newHeight, image.naturalHeight - selectionY);
-        updateSelectionDisplay();
-    });
-}
-
 const resizeHandles = document.querySelectorAll(".resize-handle");
 resizeHandles.forEach(handle => {
     handle.addEventListener("pointerdown", event => {
@@ -555,19 +517,22 @@ resizeHandles.forEach(handle => {
         let newWidth = resizeStartSelectionWidth;
         let newHeight = resizeStartSelectionHeight;
 
-        if (resizeEdge === "top") {
-            newY = Math.max(0, Math.min(resizeStartSelectionY + resizeStartSelectionHeight - 1, resizeStartSelectionY + deltaImageY));
+        // Y軸方向の調整
+        if (resizeEdge.includes("top")) {
+            newY = Math.max(0, Math.min(resizeStartSelectionY + resizeStartSelectionHeight - 10, resizeStartSelectionY + deltaImageY));
             newHeight = resizeStartSelectionHeight - (newY - resizeStartSelectionY);
         }
-        if (resizeEdge === "bottom") {
-            newHeight = Math.max(1, Math.min(image.naturalHeight - resizeStartSelectionY, resizeStartSelectionHeight + deltaImageY));
+        if (resizeEdge.includes("bottom")) {
+            newHeight = Math.max(10, Math.min(image.naturalHeight - resizeStartSelectionY, resizeStartSelectionHeight + deltaImageY));
         }
-        if (resizeEdge === "left") {
-            newX = Math.max(0, Math.min(resizeStartSelectionX + resizeStartSelectionWidth - 1, resizeStartSelectionX + deltaImageX));
+
+        // X軸方向の調整
+        if (resizeEdge.includes("left")) {
+            newX = Math.max(0, Math.min(resizeStartSelectionX + resizeStartSelectionWidth - 10, resizeStartSelectionX + deltaImageX));
             newWidth = resizeStartSelectionWidth - (newX - resizeStartSelectionX);
         }
-        if (resizeEdge === "right") {
-            newWidth = Math.max(1, Math.min(image.naturalWidth - resizeStartSelectionX, resizeStartSelectionWidth + deltaImageX));
+        if (resizeEdge.includes("right")) {
+            newWidth = Math.max(10, Math.min(image.naturalWidth - resizeStartSelectionX, resizeStartSelectionWidth + deltaImageX));
         }
 
         selectionX = Math.round(newX);
@@ -1052,12 +1017,6 @@ if (resetImagesButton) {
         if (prevOverlayOpacityValue) prevOverlayOpacityValue.textContent = "75%";
         updateGridCountDisplay();
 
-        if (selectionWidthSlider) { selectionWidthSlider.min = "1"; selectionWidthSlider.max = "1"; selectionWidthSlider.value = "1"; }
-        if (selectionHeightSlider) { selectionHeightSlider.min = "1"; selectionHeightSlider.max = "1"; selectionHeightSlider.value = "1"; }
-        if (selectionWidthValue) selectionWidthValue.textContent = "1 px";
-        if (selectionHeightValue) selectionHeightValue.textContent = "1 px";
-        if (selectionInfo) selectionInfo.textContent = "選択領域：-";
-
         if (selectedCanvas && selectedCtx) {
             selectedCanvas.width = 1; selectedCanvas.height = 1;
             selectedCtx.clearRect(0, 0, 1, 1);
@@ -1135,6 +1094,97 @@ function attachLongPressListener(button, action, initialDelay = 300, interval = 
     button.addEventListener('pointerleave', stop);
     button.addEventListener('pointercancel', stop);
 }
+
+// 領域選択のホイール＆ピンチズーム・はみ出しガード関数
+function resizeSelectionFrame(scaleFactorX, scaleFactorY) {
+    if (images.length === 0) return;
+    const image = getCurrentImage().image;
+    if (!image.complete || image.naturalWidth === 0) return;
+
+    let newWidth = Math.max(10, Math.round(selectionWidth * scaleFactorX));
+    let newHeight = Math.max(10, Math.round(selectionHeight * scaleFactorY));
+
+    // 画像サイズを超えないように制限
+    newWidth = Math.min(newWidth, image.naturalWidth);
+    newHeight = Math.min(newHeight, image.naturalHeight);
+
+    // 中心位置を維持するように位置（X, Y）を再計算
+    let newX = selectionX - Math.round((newWidth - selectionWidth) / 2);
+    let newY = selectionY - Math.round((newHeight - selectionHeight) / 2);
+
+    // 画像の外側にはみ出さないよう移動範囲をクランプ
+    selectionX = Math.max(0, Math.min(image.naturalWidth - newWidth, newX));
+    selectionY = Math.max(0, Math.min(image.naturalHeight - newHeight, newY));
+    selectionWidth = newWidth;
+    selectionHeight = newHeight;
+
+    updateSelectionDisplay();
+}
+
+const selectionContainer = document.getElementById("selectionContainer");
+if (selectionContainer) {
+    // マウスホイールでの拡大縮小
+    selectionContainer.addEventListener("wheel", event => {
+        if (images.length === 0) return;
+        event.preventDefault();
+
+        const step = event.deltaY < 0 ? 1.05 : 0.95;
+        resizeSelectionFrame(step, step);
+    }, { passive: false });
+
+    // スマホの2本指ピンチ操作
+    let selectionPointers = new Map();
+    let initialSelectionPinchDist = null;
+
+    selectionContainer.addEventListener("pointerdown", event => {
+        if (images.length === 0) return;
+        selectionPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+        if (selectionPointers.size === 2) {
+            const points = Array.from(selectionPointers.values());
+            initialSelectionPinchDist = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+        }
+    });
+
+    selectionContainer.addEventListener("pointermove", event => {
+        if (!selectionPointers.has(event.pointerId)) return;
+        selectionPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+        if (selectionPointers.size === 2 && initialSelectionPinchDist) {
+            event.preventDefault();
+            const points = Array.from(selectionPointers.values());
+            const currentDist = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+            const ratio = currentDist / initialSelectionPinchDist;
+
+            if (Math.abs(ratio - 1.0) > 0.02) {
+                resizeSelectionFrame(ratio, ratio);
+                initialSelectionPinchDist = currentDist;
+            }
+        }
+    });
+
+    const endSelectionPointer = event => {
+        selectionPointers.delete(event.pointerId);
+        if (selectionPointers.size < 2) initialSelectionPinchDist = null;
+    };
+
+    selectionContainer.addEventListener("pointerup", endSelectionPointer);
+    selectionContainer.addEventListener("pointercancel", endSelectionPointer);
+}
+
+const selectionStep = 0.02; // ボタン長押し時の伸縮速度
+
+// 全体 拡大 / 縮小
+attachLongPressListener(selectionZoomInBtn, () => resizeSelectionFrame(1 + selectionStep, 1 + selectionStep));
+attachLongPressListener(selectionZoomOutBtn, () => resizeSelectionFrame(1 - selectionStep, 1 - selectionStep));
+
+// 横 拡大 / 縮小
+attachLongPressListener(selectionScaleXInBtn, () => resizeSelectionFrame(1 + selectionStep, 1.0));
+attachLongPressListener(selectionScaleXOutBtn, () => resizeSelectionFrame(1 - selectionStep, 1.0));
+
+// 縦 拡大 / 縮小
+attachLongPressListener(selectionScaleYInBtn, () => resizeSelectionFrame(1.0, 1 + selectionStep));
+attachLongPressListener(selectionScaleYOutBtn, () => resizeSelectionFrame(1.0, 1 - selectionStep));
 
 // 1. 選択領域移動ボタン
 attachLongPressListener(moveUpButton, () => moveSelection(0, -1));

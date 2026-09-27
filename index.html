@@ -33,32 +33,51 @@
         <div id="selectionContainer" class="selection-container">
             <img id="selectionImage" class="selection-image" alt="選択中の画像">
             <div id="selectionFrame" class="selection-frame">
+                <!-- 辺ハンドル -->
                 <div class="resize-handle handle-top" data-edge="top"></div>
                 <div class="resize-handle handle-bottom" data-edge="bottom"></div>
                 <div class="resize-handle handle-left" data-edge="left"></div>
                 <div class="resize-handle handle-right" data-edge="right"></div>
+                <!-- 角ハンドルを追加 -->
+                <div class="resize-handle handle-top-left" data-edge="top-left"></div>
+                <div class="resize-handle handle-top-right" data-edge="top-right"></div>
+                <div class="resize-handle handle-bottom-left" data-edge="bottom-left"></div>
+                <div class="resize-handle handle-bottom-right" data-edge="bottom-right"></div>
             </div>
         </div>
 
-        <div class="selection-move-controls">
-            <button id="moveUpButton" type="button">↑</button>
-            <div>
-                <button id="moveLeftButton" type="button">←</button>
-                <button id="moveRightButton" type="button">→</button>
+        <div class="selection-action-row">
+            <div class="selection-move-section">
+                <label>位置移動</label>
+                <div class="selection-move-controls">
+                    <button id="moveUpButton" type="button">↑</button>
+                    <div>
+                        <button id="moveLeftButton" type="button">←</button>
+                        <button id="moveRightButton" type="button">→</button>
+                    </div>
+                    <button id="moveDownButton" type="button">↓</button>
+                </div>
             </div>
-            <button id="moveDownButton" type="button">↓</button>
-        </div>
 
-        <div class="selection-size-controls">
-            <div class="size-control-row">
-                <label for="selectionWidthSlider">幅</label>
-                <input id="selectionWidthSlider" type="range" min="1" max="1" value="1">
-                <span id="selectionWidthValue">1 px</span>
-            </div>
-            <div class="size-control-row">
-                <label for="selectionHeightSlider">高さ</label>
-                <input id="selectionHeightSlider" type="range" min="1" max="1" value="1">
-                <span id="selectionHeightValue">1 px</span>
+            <div class="selection-scale-section">
+                <label>拡大縮小</label>
+                <div class="selection-zoom-controls">
+                    <div class="zoom-group">
+                        <span>全体:</span>
+                        <button type="button" id="selectionZoomOutBtn">-</button>
+                        <button type="button" id="selectionZoomInBtn">+</button>
+                    </div>
+                    <div class="zoom-group">
+                        <span>横:</span>
+                        <button type="button" id="selectionScaleXOutBtn">-</button>
+                        <button type="button" id="selectionScaleXInBtn">+</button>
+                    </div>
+                    <div class="zoom-group">
+                        <span>縦:</span>
+                        <button type="button" id="selectionScaleYOutBtn">-</button>
+                        <button type="button" id="selectionScaleYInBtn">+</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -66,10 +85,7 @@
             <h3>枠の動かし方</h3>
             <p>枠の内側をドラッグすると、選択領域を移動できます。</p>
             <p>枠の辺をドラッグすると、選択領域の大きさを変更できます。</p>
-            <p>スマホでは1本指で操作してください。</p>
         </div>
-
-        <div id="selectionInfo" class="selection-info">選択領域：-</div>
     </div>
 
     <!-- ================================== 選択領域画像 ＆ グリッド操作 ================================== -->
