@@ -324,7 +324,7 @@ body {
     margin: 0 auto;
     border: 1px solid #ccc;
     background: #eee;
-    cursor: move;
+    cursor: default;
 }
 
 .grid-toggle-button {
@@ -420,6 +420,19 @@ body {
     color: #444;
 }
 
+.grid-action-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.grid-move-section, .grid-scale-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
 .grid-move-buttons {
     display: flex;
     flex-direction: column;
@@ -444,6 +457,40 @@ body {
 }
 
 .grid-move-buttons button:hover { background: #eee; }
+
+/* 拡大縮小 (-/+) ボタン用のスタイルを追加 */
+.grid-zoom-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.zoom-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.zoom-group span {
+    font-size: 13px;
+    width: 40px;
+    color: #555;
+    text-align: right;
+}
+
+.zoom-group button {
+    width: 36px;
+    height: 30px;
+    font-size: 16px;
+    font-weight: bold;
+    border: 1px solid #bbb;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.zoom-group button:hover { background: #eee; }
+.zoom-group button:active { background: #ddd; }
 
 .grid-count-buttons .btn-row {
     display: flex;

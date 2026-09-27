@@ -92,25 +92,41 @@
         <div id="gridControls" class="grid-controls-area">
             <h3>グリッド操作設定</h3>
 
-            <!-- 移動（ボタン） -->
+            <!-- 位置移動 ＆ 拡大縮小（ボタン化） -->
             <div class="control-group">
-                <label>位置移動</label>
-                <div class="grid-move-buttons">
-                    <button id="gridMoveUp" type="button">↑</button>
-                    <div>
-                        <button id="gridMoveLeft" type="button">←</button>
-                        <button id="gridMoveRight" type="button">→</button>
+                <div class="grid-action-row">
+                    <div class="grid-move-section">
+                        <label>位置移動</label>
+                        <div class="grid-move-buttons">
+                            <button id="gridMoveUp" type="button">↑</button>
+                            <div>
+                                <button id="gridMoveLeft" type="button">←</button>
+                                <button id="gridMoveRight" type="button">→</button>
+                            </div>
+                            <button id="gridMoveDown" type="button">↓</button>
+                        </div>
                     </div>
-                    <button id="gridMoveDown" type="button">↓</button>
-                </div>
-            </div>
 
-            <!-- 拡大縮小 -->
-            <div class="control-group">
-                <label for="gridScaleSlider">拡大縮小</label>
-                <div class="slider-row">
-                    <input id="gridScaleSlider" type="range" min="0.2" max="3.0" step="0.05" value="1.0">
-                    <span id="gridScaleValue">100%</span>
+                    <div class="grid-scale-section">
+                        <label>拡大縮小</label>
+                        <div class="grid-zoom-controls">
+                            <div class="zoom-group">
+                                <span>全体:</span>
+                                <button type="button" id="gridZoomOutBtn">-</button>
+                                <button type="button" id="gridZoomInBtn">+</button>
+                            </div>
+                            <div class="zoom-group">
+                                <span>横:</span>
+                                <button type="button" id="gridScaleXOutBtn">-</button>
+                                <button type="button" id="gridScaleXInBtn">+</button>
+                            </div>
+                            <div class="zoom-group">
+                                <span>縦:</span>
+                                <button type="button" id="gridScaleYOutBtn">-</button>
+                                <button type="button" id="gridScaleYInBtn">+</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
