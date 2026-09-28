@@ -38,10 +38,6 @@ const prevOverlayOpacityValue = document.getElementById("prevOverlayOpacityValue
 const gridControls = document.getElementById("gridControls");
 const gridZoomInBtn = document.getElementById("gridZoomInBtn");
 const gridZoomOutBtn = document.getElementById("gridZoomOutBtn");
-const gridScaleXInBtn = document.getElementById("gridScaleXInBtn");
-const gridScaleXOutBtn = document.getElementById("gridScaleXOutBtn");
-const gridScaleYInBtn = document.getElementById("gridScaleYInBtn");
-const gridScaleYOutBtn = document.getElementById("gridScaleYOutBtn");
 const gridLineWidthSlider = document.getElementById("gridLineWidthSlider");
 const gridLineWidthValue = document.getElementById("gridLineWidthValue");
 const gridCountDisplay = document.getElementById("gridCountDisplay");
@@ -77,28 +73,23 @@ let moveStartSelectionY = 0;
 let gridVisible = true;
 let gridRows = 5;
 let gridCols = 5;
-let gridOffsetX = 0;
-let gridOffsetY = 0;
-let gridScale = 1.0;
-let gridScaleX = 1.0;
-let gridScaleY = 1.0;
 let gridColor = "#ff0000";
 let gridLineWidth = 2;
 
-// グリッド ドラッグ & リサイズ用状態変数
-let isDraggingGrid = false;
-let isResizingGrid = false;
-let gridResizeMode = "";
-let gridDragStartX = 0;
-let gridDragStartY = 0;
-let initialGridOffsetX = 0;
-let initialGridOffsetY = 0;
-let initialGridScaleX = 1.0;
-let initialGridScaleY = 1.0;
+// 虫眼鏡（ズーム＆カメラ移動）状態
+let cameraZoom = 1.0;     // 1.0 = ズームなし、>1.0 = ズームイン
+let cameraX = 0;          // カメラ位置（選択領域内px基準: 0 〜 selectionWidth - visibleWidth）
+let cameraY = 0;          // カメラ位置（選択領域内px基準: 0 〜 selectionHeight - visibleHeight）
+
+let isDraggingCamera = false;
+let cameraDragStartX = 0;
+let cameraDragStartY = 0;
+let initialCameraX = 0;
+let initialCameraY = 0;
 
 let activePointers = new Map();
 let initialPinchDistance = null;
-let initialPinchScale = 1.0;
+let initialPinchZoom = 1.0;
 
 let prevOverlayVisible = false;
 let prevOverlayTransparency = 0.75;
@@ -386,20 +377,39 @@ function updateSelectionDisplay() {
 // ======================================
 // Canvas描画
 // ======================================
+function clampCameraPosition() {
+    const visibleW = selectionWidth / cameraZoom;
+    const visibleH = selectionHeight / cameraZoom;
+
+    const maxCamX = Math.max(0, selectionWidth - visibleW);
+    const maxCamY = Math.max(0, selectionHeight - visibleH);
+
+    cameraX = Math.max(0, Math.min(maxCamX, cameraX));
+    cameraY = Math.max(0, Math.min(maxCamY, cameraY));
+}
+
 function updateSelectedCanvas() {
     if (images.length === 0 || !selectedCanvas || !selectedCtx) return;
     const image = getCurrentImage().image;
     if (!image.complete || image.naturalWidth === 0) return;
+
+    clampCameraPosition();
 
     selectedCanvas.width = selectionWidth;
     selectedCanvas.height = selectionHeight;
 
     selectedCtx.clearRect(0, 0, selectionWidth, selectionHeight);
 
+    // 虫眼鏡表示用（カメラ表示領域の計算）
+    const srcX = selectionX + cameraX;
+    const srcY = selectionY + cameraY;
+    const srcW = selectionWidth / cameraZoom;
+    const srcH = selectionHeight / cameraZoom;
+
     // 1. カレント画像
     selectedCtx.drawImage(
         image,
-        selectionX, selectionY, selectionWidth, selectionHeight,
+        srcX, srcY, srcW, srcH,
         0, 0, selectionWidth, selectionHeight
     );
 
@@ -411,14 +421,14 @@ function updateSelectedCanvas() {
             selectedCtx.globalAlpha = Math.max(0, Math.min(1, 1.0 - prevOverlayTransparency));
             selectedCtx.drawImage(
                 prevItem.image,
-                selectionX, selectionY, selectionWidth, selectionHeight,
+                srcX, srcY, srcW, srcH,
                 0, 0, selectionWidth, selectionHeight
             );
             selectedCtx.restore();
         }
     }
 
-    // 3. グリッド
+    // 3. グリッド（選択領域の画像に同期して拡大・移動描画）
     if (gridVisible) {
         drawCustomGrid();
     }
@@ -443,42 +453,40 @@ function drawCustomGrid() {
     if (!selectedCtx) return;
     selectedCtx.save();
 
+    // カメラ（虫眼鏡）のトランスフォームをセット（画像と同じ拡大率・位置でグリッドを描画）
+    selectedCtx.scale(cameraZoom, cameraZoom);
+    selectedCtx.translate(-cameraX, -cameraY);
+
     selectedCtx.strokeStyle = gridColor;
-    selectedCtx.lineWidth = gridLineWidth;
+    selectedCtx.lineWidth = gridLineWidth / cameraZoom; // 拡大時も線の太さが一定に見えるように補正
 
-    const baseCellW = selectionWidth / gridCols;
-    const baseCellH = selectionHeight / gridRows;
+    const cellW = selectionWidth / gridCols;
+    const cellH = selectionHeight / gridRows;
 
-    const cellW = baseCellW * gridScale * gridScaleX;
-    const cellH = baseCellH * gridScale * gridScaleY;
-
-    const totalGridWidth = cellW * gridCols;
-    const totalGridHeight = cellH * gridRows;
-
-    const strokeOffset = (gridLineWidth % 2 !== 0) ? 0.5 : 0;
+    const strokeOffset = ((gridLineWidth / cameraZoom) % 2 !== 0) ? 0.5 : 0;
 
     selectedCtx.beginPath();
     selectedCtx.rect(
-        gridOffsetX + strokeOffset, 
-        gridOffsetY + strokeOffset, 
-        totalGridWidth, 
-        totalGridHeight
+        strokeOffset, 
+        strokeOffset, 
+        selectionWidth, 
+        selectionHeight
     );
     selectedCtx.stroke();
 
     for (let c = 1; c < gridCols; c++) {
-        const x = gridOffsetX + (c * cellW) + strokeOffset;
+        const x = (c * cellW) + strokeOffset;
         selectedCtx.beginPath();
-        selectedCtx.moveTo(x, gridOffsetY);
-        selectedCtx.lineTo(x, gridOffsetY + totalGridHeight);
+        selectedCtx.moveTo(x, 0);
+        selectedCtx.lineTo(x, selectionHeight);
         selectedCtx.stroke();
     }
 
     for (let r = 1; r < gridRows; r++) {
-        const y = gridOffsetY + (r * cellH) + strokeOffset;
+        const y = (r * cellH) + strokeOffset;
         selectedCtx.beginPath();
-        selectedCtx.moveTo(gridOffsetX, y);
-        selectedCtx.lineTo(gridOffsetX + totalGridWidth, y);
+        selectedCtx.moveTo(0, y);
+        selectedCtx.lineTo(selectionWidth, y);
         selectedCtx.stroke();
     }
 
@@ -597,186 +605,61 @@ if (selectionFrame) {
 window.addEventListener("resize", () => { updateSelectionDisplay(); });
 
 // ======================================
-// グリッドドラッグ・伸縮リサイズ・ズーム (Canvas)
+// 虫眼鏡機能（ドラッグ引っ張りでカメラ移動・ピンチ/ホイールでズーム）
 // ======================================
 function getCanvasScaleFactor() {
     if (!selectedCanvas || !selectedCanvas.clientWidth) return 1.0;
     return selectionWidth / selectedCanvas.clientWidth;
 }
 
-function getGridHitTest(canvasX, canvasY) {
-    if (!gridVisible) return null;
-
-    const baseCellW = selectionWidth / gridCols;
-    const baseCellH = selectionHeight / gridRows;
-    const cellW = baseCellW * gridScale * gridScaleX;
-    const cellH = baseCellH * gridScale * gridScaleY;
-    const gridW = cellW * gridCols;
-    const gridH = cellH * gridRows;
-
-    const left = gridOffsetX;
-    const right = gridOffsetX + gridW;
-    const top = gridOffsetY;
-    const bottom = gridOffsetY + gridH;
-
-    const threshold = 15 * getCanvasScaleFactor();
-
-    const nearLeft = Math.abs(canvasX - left) <= threshold;
-    const nearRight = Math.abs(canvasX - right) <= threshold;
-    const nearTop = Math.abs(canvasY - top) <= threshold;
-    const nearBottom = Math.abs(canvasY - bottom) <= threshold;
-
-    const withinX = canvasX >= left - threshold && canvasX <= right + threshold;
-    const withinY = canvasY >= top - threshold && canvasY <= bottom + threshold;
-
-    if (nearTop && nearLeft) return "top-left";
-    if (nearTop && nearRight) return "top-right";
-    if (nearBottom && nearLeft) return "bottom-left";
-    if (nearBottom && nearRight) return "bottom-right";
-
-    if (nearTop && withinX) return "top";
-    if (nearBottom && withinX) return "bottom";
-    if (nearLeft && withinY) return "left";
-    if (nearRight && withinY) return "right";
-
-    if (canvasX >= left && canvasX <= right && canvasY >= top && canvasY <= bottom) {
-        return "move";
-    }
-
-    return null;
-}
-
 if (selectedCanvas) {
     selectedCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
     selectedCanvas.addEventListener("pointerdown", event => {
-        if (!gridVisible) return;
         activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
 
         if (activePointers.size === 1) {
-            const rect = selectedCanvas.getBoundingClientRect();
-            const factor = getCanvasScaleFactor();
-            const canvasX = (event.clientX - rect.left) * factor;
-            const canvasY = (event.clientY - rect.top) * factor;
-
-            const hit = getGridHitTest(canvasX, canvasY);
-
-            if (hit && hit !== "move") {
-                isResizingGrid = true;
-                gridResizeMode = hit;
-                gridDragStartX = event.clientX;
-                gridDragStartY = event.clientY;
-                initialGridOffsetX = gridOffsetX;
-                initialGridOffsetY = gridOffsetY;
-                initialGridScaleX = gridScaleX;
-                initialGridScaleY = gridScaleY;
-            } else if (hit === "move") {
-                isDraggingGrid = true;
-                gridDragStartX = event.clientX;
-                gridDragStartY = event.clientY;
-                initialGridOffsetX = gridOffsetX;
-                initialGridOffsetY = gridOffsetY;
-            }
+            isDraggingCamera = true;
+            cameraDragStartX = event.clientX;
+            cameraDragStartY = event.clientY;
+            initialCameraX = cameraX;
+            initialCameraY = cameraY;
+            selectedCanvas.style.cursor = "grabbing";
         } else if (activePointers.size === 2) {
-            isDraggingGrid = false;
-            isResizingGrid = false;
+            isDraggingCamera = false;
             const points = Array.from(activePointers.values());
             initialPinchDistance = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
-            initialPinchScale = gridScale;
+            initialPinchZoom = cameraZoom;
         }
         try { selectedCanvas.setPointerCapture(event.pointerId); } catch (e) {}
     });
 
     selectedCanvas.addEventListener("pointermove", event => {
-        if (!gridVisible) return;
-
         if (!activePointers.has(event.pointerId)) {
-            const rect = selectedCanvas.getBoundingClientRect();
-            const factor = getCanvasScaleFactor();
-            const canvasX = (event.clientX - rect.left) * factor;
-            const canvasY = (event.clientY - rect.top) * factor;
-            const hit = getGridHitTest(canvasX, canvasY);
-
-            if (hit === "top-left" || hit === "bottom-right") selectedCanvas.style.cursor = "nwse-resize";
-            else if (hit === "top-right" || hit === "bottom-left") selectedCanvas.style.cursor = "nesw-resize";
-            else if (hit === "top" || hit === "bottom") selectedCanvas.style.cursor = "ns-resize";
-            else if (hit === "left" || hit === "right") selectedCanvas.style.cursor = "ew-resize";
-            else if (hit === "move") selectedCanvas.style.cursor = "move";
-            else selectedCanvas.style.cursor = "default";
-
+            selectedCanvas.style.cursor = cameraZoom > 1.0 ? "grab" : "default";
             return;
         }
 
         activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
 
-        if (activePointers.size === 1) {
-            const factor = getCanvasScaleFactor();
-            const deltaX = (event.clientX - gridDragStartX) * factor;
-            const deltaY = (event.clientY - gridDragStartY) * factor;
+        if (activePointers.size === 1 && isDraggingCamera) {
+            const displayScale = selectedCanvas.clientWidth / selectionWidth;
+            // 引っ張り操作（ドラッグした方向に画像が表示されるよう逆方向に移動）
+            const deltaX = (event.clientX - cameraDragStartX) / (displayScale * cameraZoom);
+            const deltaY = (event.clientY - cameraDragStartY) / (displayScale * cameraZoom);
 
-            if (isResizingGrid) {
-                const baseCellW = selectionWidth / gridCols;
-                const baseCellH = selectionHeight / gridRows;
+            cameraX = initialCameraX - deltaX;
+            cameraY = initialCameraY - deltaY;
 
-                const origW = baseCellW * gridScale * initialGridScaleX * gridCols;
-                const origH = baseCellH * gridScale * initialGridScaleY * gridRows;
-
-                let newW = origW;
-                let newH = origH;
-
-                if (gridResizeMode.includes("right")) newW = origW + deltaX;
-                if (gridResizeMode.includes("left")) newW = origW - deltaX;
-                if (gridResizeMode.includes("bottom")) newH = origH + deltaY;
-                if (gridResizeMode.includes("top")) newH = origH - deltaY;
-
-                if (gridResizeMode.includes("right") || gridResizeMode.includes("left")) {
-                    const targetX = newW / (baseCellW * gridScale * gridCols);
-                    // Canvasサイズを超えて拡大されるのを禁止する最大倍率の計算
-                    const maxAllowedScaleX = selectionWidth / (baseCellW * gridScale * gridCols);
-                    gridScaleX = Math.max(0.1, Math.min(maxAllowedScaleX, targetX));
-                }
-                if (gridResizeMode.includes("bottom") || gridResizeMode.includes("top")) {
-                    const targetY = newH / (baseCellH * gridScale * gridRows);
-                    // Canvasサイズを超えて拡大されるのを禁止する最大倍率の計算
-                    const maxAllowedScaleY = selectionHeight / (baseCellH * gridScale * gridRows);
-                    gridScaleY = Math.max(0.1, Math.min(maxAllowedScaleY, targetY));
-                }
-
-                if (gridResizeMode.includes("left")) {
-                    gridOffsetX = initialGridOffsetX + (origW - baseCellW * gridScale * gridScaleX * gridCols);
-                }
-                if (gridResizeMode.includes("top")) {
-                    gridOffsetY = initialGridOffsetY + (origH - baseCellH * gridScale * gridScaleY * gridRows);
-                }
-
-                // 拡大変更直後にオフセットを再調整してはみ出しを防止
-                clampGridOffset();
-                updateSelectedCanvas();
-            } else if (isDraggingGrid) {
-                gridOffsetX = initialGridOffsetX + deltaX;
-                gridOffsetY = initialGridOffsetY + deltaY;
-                clampGridOffset();
-
-                updateSelectedCanvas();
-            }
+            clampCameraPosition();
+            updateSelectedCanvas();
         } else if (activePointers.size === 2 && initialPinchDistance) {
             const points = Array.from(activePointers.values());
             const currentDist = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
             const ratio = currentDist / initialPinchDistance;
 
-            const baseCellW = selectionWidth / gridCols;
-            const baseCellH = selectionHeight / gridRows;
-            // Canvasからはみ出さない最大倍率を計算
-            const maxScaleX = selectionWidth / (baseCellW * gridScaleX * gridCols);
-            const maxScaleY = selectionHeight / (baseCellH * gridScaleY * gridRows);
-            const maxScale = Math.min(maxScaleX, maxScaleY);
-
-            let newScale = initialPinchScale * ratio;
-            newScale = Math.max(0.1, Math.min(maxScale, newScale));
-
-            gridScale = newScale;
-            clampGridOffset();
-
+            cameraZoom = Math.max(1.0, Math.min(10.0, initialPinchZoom * ratio));
+            clampCameraPosition();
             updateSelectedCanvas();
         }
     });
@@ -785,8 +668,8 @@ if (selectedCanvas) {
         activePointers.delete(event.pointerId);
         if (activePointers.size < 2) initialPinchDistance = null;
         if (activePointers.size === 0) {
-            isDraggingGrid = false;
-            isResizingGrid = false;
+            isDraggingCamera = false;
+            selectedCanvas.style.cursor = cameraZoom > 1.0 ? "grab" : "default";
         }
         try { selectedCanvas.releasePointerCapture(event.pointerId); } catch (e) {}
     };
@@ -795,105 +678,44 @@ if (selectedCanvas) {
     selectedCanvas.addEventListener("pointercancel", endPointer);
 
     selectedCanvas.addEventListener("wheel", event => {
-        if (!gridVisible) return;
         event.preventDefault();
+        const zoomStep = 0.1;
 
-        const baseCellW = selectionWidth / gridCols;
-        const baseCellH = selectionHeight / gridRows;
-        // Canvasからはみ出さない最大倍率を計算
-        const maxScaleX = selectionWidth / (baseCellW * gridScaleX * gridCols);
-        const maxScaleY = selectionHeight / (baseCellH * gridScaleY * gridRows);
-        const maxScale = Math.min(maxScaleX, maxScaleY);
-
-        const zoomStep = 0.05;
         if (event.deltaY < 0) {
-            gridScale = Math.min(maxScale, gridScale + zoomStep);
+            cameraZoom = Math.min(10.0, cameraZoom + zoomStep);
         } else {
-            gridScale = Math.max(0.1, gridScale - zoomStep);
+            cameraZoom = Math.max(1.0, cameraZoom - zoomStep);
         }
 
-        clampGridOffset();
+        clampCameraPosition();
         updateSelectedCanvas();
     }, { passive: false });
 }
 
 // ======================================
-// グリッドコントロール
+// 虫眼鏡ズーム＆カメラ操作コントロール
 // ======================================
-function clampGridOffset() {
-    const baseCellW = selectionWidth / gridCols;
-    const baseCellH = selectionHeight / gridRows;
+const cameraZoomStep = 0.03;
 
-    // 現在の倍率でのグリッド全体のサイズを取得
-    const cellW = baseCellW * gridScale * gridScaleX;
-    const cellH = baseCellH * gridScale * gridScaleY;
-
-    const totalGridWidth = cellW * gridCols;
-    const totalGridHeight = cellH * gridRows;
-
-    // グリッドがCanvas（選択領域）を超えて外側に広がらないよう移動可能領域を厳格に制限
-    let minX = Math.min(0, selectionWidth - totalGridWidth);
-    let maxX = Math.max(0, selectionWidth - totalGridWidth);
-
-    let minY = Math.min(0, selectionHeight - totalGridHeight);
-    let maxY = Math.max(0, selectionHeight - totalGridHeight);
-
-    gridOffsetX = Math.max(minX, Math.min(maxX, gridOffsetX));
-    gridOffsetY = Math.max(minY, Math.min(maxY, gridOffsetY));
-}
-
-const scaleStep = 0.02; // ボタン長押し時の伸縮スピード
-
-// 1. 全体 拡大 / 縮小
 attachLongPressListener(gridZoomInBtn, () => {
-    const baseCellW = selectionWidth / gridCols;
-    const baseCellH = selectionHeight / gridRows;
-    const maxScaleX = selectionWidth / (baseCellW * gridScaleX * gridCols);
-    const maxScaleY = selectionHeight / (baseCellH * gridScaleY * gridRows);
-    const maxScale = Math.min(maxScaleX, maxScaleY);
-
-    gridScale = Math.min(maxScale, gridScale + scaleStep);
-    clampGridOffset();
+    cameraZoom = Math.min(10.0, cameraZoom + cameraZoomStep);
+    clampCameraPosition();
     updateSelectedCanvas();
 });
 
 attachLongPressListener(gridZoomOutBtn, () => {
-    gridScale = Math.max(0.1, gridScale - scaleStep);
-    clampGridOffset();
+    cameraZoom = Math.max(1.0, cameraZoom - cameraZoomStep);
+    clampCameraPosition();
     updateSelectedCanvas();
 });
 
-// 2. 横倍率 拡大 / 縮小
-attachLongPressListener(gridScaleXInBtn, () => {
-    const baseCellW = selectionWidth / gridCols;
-    const maxScaleX = selectionWidth / (baseCellW * gridScale * gridCols);
-
-    gridScaleX = Math.min(maxScaleX, gridScaleX + scaleStep);
-    clampGridOffset();
+function moveCamera(dx, dy) {
+    const step = 5 / cameraZoom;
+    cameraX += dx * step;
+    cameraY += dy * step;
+    clampCameraPosition();
     updateSelectedCanvas();
-});
-
-attachLongPressListener(gridScaleXOutBtn, () => {
-    gridScaleX = Math.max(0.1, gridScaleX - scaleStep);
-    clampGridOffset();
-    updateSelectedCanvas();
-});
-
-// 3. 縦倍率 拡大 / 縮小
-attachLongPressListener(gridScaleYInBtn, () => {
-    const baseCellH = selectionHeight / gridRows;
-    const maxScaleY = selectionHeight / (baseCellH * gridScale * gridRows);
-
-    gridScaleY = Math.min(maxScaleY, gridScaleY + scaleStep);
-    clampGridOffset();
-    updateSelectedCanvas();
-});
-
-attachLongPressListener(gridScaleYOutBtn, () => {
-    gridScaleY = Math.max(0.1, gridScaleY - scaleStep);
-    clampGridOffset();
-    updateSelectedCanvas();
-});
+}
 
 function updateGridCountDisplay() {
     if (gridCountDisplay) gridCountDisplay.textContent = `横${gridCols}列 × 縦${gridRows}行`;
@@ -903,7 +725,6 @@ const addGridColBtn = document.getElementById("addGridCol");
 if (addGridColBtn) {
     addGridColBtn.addEventListener("click", () => {
         gridCols++;
-        clampGridOffset();
         updateGridCountDisplay();
         updateSelectedCanvas();
     });
@@ -914,7 +735,6 @@ if (removeGridColBtn) {
     removeGridColBtn.addEventListener("click", () => {
         if (gridCols > 1) {
             gridCols--;
-            clampGridOffset();
             updateGridCountDisplay();
             updateSelectedCanvas();
         }
@@ -925,7 +745,6 @@ const addGridRowBtn = document.getElementById("addGridRow");
 if (addGridRowBtn) {
     addGridRowBtn.addEventListener("click", () => {
         gridRows++;
-        clampGridOffset();
         updateGridCountDisplay();
         updateSelectedCanvas();
     });
@@ -936,7 +755,6 @@ if (removeGridRowBtn) {
     removeGridRowBtn.addEventListener("click", () => {
         if (gridRows > 1) {
             gridRows--;
-            clampGridOffset();
             updateGridCountDisplay();
             updateSelectedCanvas();
         }
@@ -1005,11 +823,9 @@ if (resetImagesButton) {
 
         gridRows = 5;
         gridCols = 5;
-        gridOffsetX = 0;
-        gridOffsetY = 0;
-        gridScale = 1.0;
-        gridScaleX = 1.0;
-        gridScaleY = 1.0;
+        cameraZoom = 1.0;
+        cameraX = 0;
+        cameraY = 0;
 
         prevOverlayVisible = false;
         prevOverlayTransparency = 0.75;
@@ -1046,13 +862,6 @@ function moveSelection(dx, dy) {
     selectionY = Math.max(0, Math.min(maxY, selectionY + dy * step));
 
     updateSelectionDisplay();
-}
-
-function moveGrid(dx, dy) {
-    gridOffsetX += dx;
-    gridOffsetY += dy;
-    clampGridOffset();
-    updateSelectedCanvas();
 }
 
 function attachLongPressListener(button, action, initialDelay = 300, interval = 30) {
@@ -1200,9 +1009,8 @@ attachLongPressListener(moveDownButton, () => moveSelection(0, 1));
 attachLongPressListener(moveLeftButton, () => moveSelection(-1, 0));
 attachLongPressListener(moveRightButton, () => moveSelection(1, 0));
 
-// 2. グリッド移動ボタン
-const gridMoveStep = 2;
-attachLongPressListener(gridMoveUp, () => moveGrid(0, -gridMoveStep));
-attachLongPressListener(gridMoveDown, () => moveGrid(0, gridMoveStep));
-attachLongPressListener(gridMoveLeft, () => moveGrid(-gridMoveStep, 0));
-attachLongPressListener(gridMoveRight, () => moveGrid(gridMoveStep, 0));
+// 2. カメラ移動ボタン
+attachLongPressListener(gridMoveUp, () => moveCamera(0, -1));
+attachLongPressListener(gridMoveDown, () => moveCamera(0, 1));
+attachLongPressListener(gridMoveLeft, () => moveCamera(-1, 0));
+attachLongPressListener(gridMoveRight, () => moveCamera(1, 0));
