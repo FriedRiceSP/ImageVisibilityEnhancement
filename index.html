@@ -22,14 +22,13 @@
     <!-- ================================== 画像一覧 ================================== -->
     <div class="image-list-area">
         <h2>画像一覧</h2>
-        <p class="list-help">画像をドラッグして並び替えできます</p>
         <div id="imageList"></div>
     </div>
 
     <!-- ================================== 画像領域選択 ================================== -->
     <div class="image-selection-area">
         <h2>画像領域選択</h2>
-
+        
         <div id="selectionContainer" class="selection-container">
             <img id="selectionImage" class="selection-image" alt="選択中の画像">
             <div id="selectionFrame" class="selection-frame">
@@ -46,51 +45,53 @@
             </div>
         </div>
 
-        <div class="selection-action-row">
-            <div class="selection-move-section">
-                <label>位置移動</label>
-                <div class="selection-move-controls">
-                    <button id="moveUpButton" type="button">↑</button>
-                    <div>
-                        <button id="moveLeftButton" type="button">←</button>
-                        <button id="moveRightButton" type="button">→</button>
+        <div class="selection-panel-frame">
+            <div class="selection-action-row">
+                <div class="selection-move-section">
+                    <label>位置移動</label>
+                    <div class="selection-move-controls">
+                        <button id="moveUpButton" type="button">↑</button>
+                        <div>
+                            <button id="moveLeftButton" type="button">←</button>
+                            <button id="moveRightButton" type="button">→</button>
+                        </div>
+                        <button id="moveDownButton" type="button">↓</button>
                     </div>
-                    <button id="moveDownButton" type="button">↓</button>
+                </div>
+
+                <div class="selection-scale-section">
+                    <label>拡大縮小</label>
+                    <div class="selection-zoom-controls">
+                        <div class="zoom-group">
+                            <span>全体:</span>
+                            <button type="button" id="selectionZoomOutBtn">-</button>
+                            <button type="button" id="selectionZoomInBtn">+</button>
+                        </div>
+                        <div class="zoom-group">
+                            <span>横:</span>
+                            <button type="button" id="selectionScaleXOutBtn">-</button>
+                            <button type="button" id="selectionScaleXInBtn">+</button>
+                        </div>
+                        <div class="zoom-group">
+                            <span>縦:</span>
+                            <button type="button" id="selectionScaleYOutBtn">-</button>
+                            <button type="button" id="selectionScaleYInBtn">+</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="selection-scale-section">
-                <label>拡大縮小</label>
-                <div class="selection-zoom-controls">
-                    <div class="zoom-group">
-                        <span>全体:</span>
-                        <button type="button" id="selectionZoomOutBtn">-</button>
-                        <button type="button" id="selectionZoomInBtn">+</button>
-                    </div>
-                    <div class="zoom-group">
-                        <span>横:</span>
-                        <button type="button" id="selectionScaleXOutBtn">-</button>
-                        <button type="button" id="selectionScaleXInBtn">+</button>
-                    </div>
-                    <div class="zoom-group">
-                        <span>縦:</span>
-                        <button type="button" id="selectionScaleYOutBtn">-</button>
-                        <button type="button" id="selectionScaleYInBtn">+</button>
-                    </div>
-                </div>
+            <div class="selection-instruction">
+                <p>枠の内側を持って選択領域を移動</p>
+                <p>枠の辺を持って選択領域の大きさを変更</p>
+                <p>ホイール操作やピンチ操作で枠全体を拡大縮小</p>
             </div>
-        </div>
-
-        <div class="selection-instruction">
-            <h3>枠の動かし方</h3>
-            <p>枠の内側をドラッグすると、選択領域を移動できます。</p>
-            <p>枠の辺をドラッグすると、選択領域の大きさを変更できます。</p>
         </div>
     </div>
 
     <!-- ================================== 選択領域画像 ＆ グリッド操作 ================================== -->
     <div class="selected-image-area">
-        <h2>選択領域</h2>
+        <h2>選択領域 with グリッド</h2>
 
         <div id="selectedCanvasContainer" class="selected-canvas-container">
             <canvas id="selectedCanvas"></canvas>
@@ -102,11 +103,8 @@
             <button id="nextImageButton" type="button">次の画像 →</button>
         </div>
 
-        <button id="toggleGridButton" type="button" class="grid-toggle-button">グリッド非表示</button>
-
         <!-- ================================== グリッドコントローラー ================================== -->
         <div id="gridControls" class="grid-controls-area">
-            <h3>グリッド操作設定</h3>
 
             <!-- ズーム・カメラ移動（虫眼鏡機能） -->
             <div class="control-group">
@@ -132,6 +130,8 @@
                                 <button type="button" id="gridZoomInBtn">+</button>
                             </div>
                         </div>
+                        <label>グリッド表示</label>
+                        <button id="toggleGridButton" type="button" class="grid-toggle-button">グリッド非表示</button>
                     </div>
                 </div>
             </div>
@@ -152,17 +152,6 @@
                         <button id="addGridRow" type="button">+</button>
                         <span>(現在<span id="gridRowsDisplay">5</span>)</span>
                     </div>
-                </div>
-            </div>
-
-            <!-- 前画像オーバーレイ機能 -->
-            <div class="control-group">
-                <label>直前画像オーバーレイ（直前の画像を重ねて表示）</label>
-                <button id="togglePrevOverlayButton" type="button" class="grid-toggle-button" style="margin-top:0; margin-bottom:8px;">直前画像オーバーレイ: OFF</button>
-                <div class="slider-row">
-                    <label for="prevOverlayOpacitySlider" style="margin-bottom:0; font-weight:normal; width:auto;">透明度</label>
-                    <input id="prevOverlayOpacitySlider" type="range" min="0.1" max="0.9" step="0.01" value="0.5">
-                    <span id="prevOverlayOpacityValue">75%</span>
                 </div>
             </div>
 
@@ -188,6 +177,30 @@
                     <input id="gridLineWidthSlider" type="range" min="1" max="10" step="1" value="2">
                     <span id="gridLineWidthValue">2 px</span>
                 </div>
+            </div>
+
+            <!-- 操作説明 -->
+            <div class="grid-instruction">
+                <p>画像をホイール操作やピンチ操作でズーム</p>
+                <p>画像をドラッグやスワイプで拡大箇所を移動</p>
+            </div>
+        </div>
+
+        <!-- ================================== 直前画像オーバーレイコントローラー ================================== -->
+        <div id="overlayControls" class="overlay-controls-area">
+            <h3>直前画像オーバーレイ設定</h3>
+            <div class="control-group" style="margin-bottom: 0;">
+                <button id="togglePrevOverlayButton" type="button" class="grid-toggle-button" style="margin-top:0; margin-bottom:12px;">直前画像オーバーレイ: OFF</button>
+                <div class="slider-row">
+                    <label for="prevOverlayOpacitySlider" style="margin-bottom:0; font-weight:normal; width:auto;">透明度</label>
+                    <input id="prevOverlayOpacitySlider" type="range" min="0.1" max="0.9" step="0.01" value="0.5">
+                    <span id="prevOverlayOpacityValue">75%</span>
+                </div>
+            </div>
+
+            <!-- 操作説明 -->
+            <div class="overlay-instruction">
+                <p>直前の画像を現在の画像上に半透明で重ねて表示</p>
             </div>
         </div>
     </div>

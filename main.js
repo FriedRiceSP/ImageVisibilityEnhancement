@@ -1005,13 +1005,13 @@ attachLongPressListener(selectionScaleXOutBtn, () => resizeSelectionFrame(1 - se
 attachLongPressListener(selectionScaleYInBtn, () => resizeSelectionFrame(1.0, 1 + selectionStep));
 attachLongPressListener(selectionScaleYOutBtn, () => resizeSelectionFrame(1.0, 1 - selectionStep));
 
-// 1. 選択領域移動ボタン
+// 選択領域移動ボタン
 attachLongPressListener(moveUpButton, () => moveSelection(0, -1));
 attachLongPressListener(moveDownButton, () => moveSelection(0, 1));
 attachLongPressListener(moveLeftButton, () => moveSelection(-1, 0));
 attachLongPressListener(moveRightButton, () => moveSelection(1, 0));
 
-// 2. カメラ移動ボタン
+// カメラ移動ボタン
 attachLongPressListener(gridMoveUp, () => moveCamera(0, -1));
 attachLongPressListener(gridMoveDown, () => moveCamera(0, 1));
 attachLongPressListener(gridMoveLeft, () => moveCamera(-1, 0));
