@@ -40,7 +40,8 @@ const gridZoomInBtn = document.getElementById("gridZoomInBtn");
 const gridZoomOutBtn = document.getElementById("gridZoomOutBtn");
 const gridLineWidthSlider = document.getElementById("gridLineWidthSlider");
 const gridLineWidthValue = document.getElementById("gridLineWidthValue");
-const gridCountDisplay = document.getElementById("gridCountDisplay");
+const gridColsDisplay = document.getElementById("gridColsDisplay");
+const gridRowsDisplay = document.getElementById("gridRowsDisplay");
 
 // 画像データ
 let images = [];
@@ -718,7 +719,8 @@ function moveCamera(dx, dy) {
 }
 
 function updateGridCountDisplay() {
-    if (gridCountDisplay) gridCountDisplay.textContent = `横${gridCols}列 × 縦${gridRows}行`;
+    if (gridColsDisplay) gridColsDisplay.textContent = gridCols;
+    if (gridRowsDisplay) gridRowsDisplay.textContent = gridRows;
 }
 
 const addGridColBtn = document.getElementById("addGridCol");

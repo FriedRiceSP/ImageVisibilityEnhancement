@@ -138,25 +138,27 @@
 
             <!-- 増減 -->
             <div class="control-group">
-                <label>グリッド数変更（現在: <span id="gridCountDisplay">横5列 × 縦5行</span>）</label>
-                <div class="grid-count-buttons">
-                    <div class="btn-row">
-                        <span>縦列（左右）:</span>
-                        <button id="addGridCol" type="button">縦列の追加</button>
-                        <button id="removeGridCol" type="button">縦列の削除</button>
+                <label>グリッド数変更</label>
+                <div class="grid-zoom-controls">
+                    <div class="zoom-group">
+                        <span>左右:</span>
+                        <button id="removeGridCol" type="button">-</button>
+                        <button id="addGridCol" type="button">+</button>
+                        <span>(現在<span id="gridColsDisplay">5</span>)</span>
                     </div>
-                    <div class="btn-row">
-                        <span>横列（上下）:</span>
-                        <button id="addGridRow" type="button">横列の追加</button>
-                        <button id="removeGridRow" type="button">横列の削除</button>
+                    <div class="zoom-group">
+                        <span>上下:</span>
+                        <button id="removeGridRow" type="button">-</button>
+                        <button id="addGridRow" type="button">+</button>
+                        <span>(現在<span id="gridRowsDisplay">5</span>)</span>
                     </div>
                 </div>
             </div>
 
             <!-- 前画像オーバーレイ機能 -->
             <div class="control-group">
-                <label>前画像オーバーレイ（直前の画像を重ねて表示）</label>
-                <button id="togglePrevOverlayButton" type="button" class="grid-toggle-button" style="margin-top:0; margin-bottom:8px;">前画像重ね表示: OFF</button>
+                <label>直前画像オーバーレイ（直前の画像を重ねて表示）</label>
+                <button id="togglePrevOverlayButton" type="button" class="grid-toggle-button" style="margin-top:0; margin-bottom:8px;">直前画像オーバーレイ: OFF</button>
                 <div class="slider-row">
                     <label for="prevOverlayOpacitySlider" style="margin-bottom:0; font-weight:normal; width:auto;">透明度</label>
                     <input id="prevOverlayOpacitySlider" type="range" min="0.1" max="0.9" step="0.01" value="0.5">

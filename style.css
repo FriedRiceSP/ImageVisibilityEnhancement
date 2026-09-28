@@ -512,7 +512,8 @@ body {
 .zoom-group {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
+    white-space: nowrap;
 }
 
 .zoom-group span {
