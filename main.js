@@ -725,7 +725,7 @@ function updateGridCountDisplay() {
 
 const addGridColBtn = document.getElementById("addGridCol");
 if (addGridColBtn) {
-    addGridColBtn.addEventListener("click", () => {
+    attachLongPressListener(addGridColBtn, () => {
         gridCols++;
         updateGridCountDisplay();
         updateSelectedCanvas();
@@ -734,7 +734,7 @@ if (addGridColBtn) {
 
 const removeGridColBtn = document.getElementById("removeGridCol");
 if (removeGridColBtn) {
-    removeGridColBtn.addEventListener("click", () => {
+    attachLongPressListener(removeGridColBtn, () => {
         if (gridCols > 1) {
             gridCols--;
             updateGridCountDisplay();
@@ -745,7 +745,7 @@ if (removeGridColBtn) {
 
 const addGridRowBtn = document.getElementById("addGridRow");
 if (addGridRowBtn) {
-    addGridRowBtn.addEventListener("click", () => {
+    attachLongPressListener(addGridRowBtn, () => {
         gridRows++;
         updateGridCountDisplay();
         updateSelectedCanvas();
@@ -754,7 +754,7 @@ if (addGridRowBtn) {
 
 const removeGridRowBtn = document.getElementById("removeGridRow");
 if (removeGridRowBtn) {
-    removeGridRowBtn.addEventListener("click", () => {
+    attachLongPressListener(removeGridRowBtn, () => {
         if (gridRows > 1) {
             gridRows--;
             updateGridCountDisplay();
