@@ -309,25 +309,9 @@ body {
 .selection-move-controls button:hover { background: #e5e5e5; }
 .selection-move-controls button:active { background: #d5d5d5; }
 
-.selection-size-controls {
-    width: min(600px, 90vw);
-    margin: 20px auto 0;
-}
-
-.size-control-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.size-control-row label { width: 45px; text-align: right; }
-.size-control-row input[type="range"] { width: 300px; cursor: pointer; }
-.size-control-row span { width: 80px; text-align: left; font-size: 14px; }
-
 .selection-instruction {
-    width: min(600px, 90vw);
+    width: 100%;
+    max-width: 600px;
     margin: 15px auto 0;
     padding: 10px 15px;
     box-sizing: border-box;
@@ -371,12 +355,6 @@ body {
 
 .overlay-instruction h3 { margin: 0 0 6px; font-size: 15px; color: #4285f4; }
 .overlay-instruction p { margin: 3px 0; font-size: 13px; }
-
-.selection-info {
-    margin-top: 15px;
-    color: #666;
-    font-size: 14px;
-}
 
 /* ======================================
 選択領域Canvas ＆ グリッド表示
@@ -667,10 +645,7 @@ body {
     .image-order-buttons button { width: 40px; height: 40px; }
     .image-selection-area { width: 95vw; }
     .selection-image { max-width: 95vw; max-height: 65vh; }
-    .size-control-row { flex-wrap: wrap; }
-    .size-control-row input[type="range"] { width: 200px; }
-    .size-control-row span { width: 65px; }
-    .selection-instruction { width: 95vw; padding: 10px 12px; }
+    .selection-instruction { width: 100%; padding: 10px 12px; }
     .image-switch-controls { gap: 8px; }
     .image-switch-controls button { min-width: 105px; height: 40px; font-size: 13px; }
 }

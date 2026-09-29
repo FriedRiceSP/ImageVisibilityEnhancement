@@ -608,10 +608,10 @@ window.addEventListener("resize", () => { updateSelectionDisplay(); });
 // ======================================
 // 虫眼鏡機能（ドラッグ引っ張りでカメラ移動・ピンチ/ホイールでズーム）
 // ======================================
-function getCanvasScaleFactor() {
-    if (!selectedCanvas || !selectedCanvas.clientWidth) return 1.0;
-    return selectionWidth / selectedCanvas.clientWidth;
-}
+// function getCanvasScaleFactor() {
+//     if (!selectedCanvas || !selectedCanvas.clientWidth) return 1.0;
+//     return selectionWidth / selectedCanvas.clientWidth;
+// }
 
 if (selectedCanvas) {
     selectedCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -792,7 +792,7 @@ if (toggleGridButton) {
 if (togglePrevOverlayButton) {
     togglePrevOverlayButton.addEventListener("click", () => {
         prevOverlayVisible = !prevOverlayVisible;
-        togglePrevOverlayButton.textContent = prevOverlayVisible ? "前画像重ね表示: ON" : "前画像重ね表示: OFF";
+        togglePrevOverlayButton.textContent = prevOverlayVisible ? "直前画像オーバーレイ: ON" : "直前画像オーバーレイ: OFF";
         updateSelectedCanvas();
     });
 }
@@ -832,7 +832,7 @@ if (resetImagesButton) {
         prevOverlayVisible = false;
         prevOverlayTransparency = 0.75;
 
-        if (togglePrevOverlayButton) togglePrevOverlayButton.textContent = "前画像重ね表示: OFF";
+        if (togglePrevOverlayButton) togglePrevOverlayButton.textContent = "直前画像オーバーレイ: OFF";
         if (prevOverlayOpacitySlider) prevOverlayOpacitySlider.value = "0.75";
         if (prevOverlayOpacityValue) prevOverlayOpacityValue.textContent = "75%";
         updateGridCountDisplay();
