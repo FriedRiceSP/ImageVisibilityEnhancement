@@ -30,6 +30,7 @@ const previousImageButton = document.getElementById("previousImageButton");
 const nextImageButton = document.getElementById("nextImageButton");
 const currentImageValue = document.getElementById("currentImageValue");
 const toggleGridButton = document.getElementById("toggleGridButton");
+const toggleFlipHButton = document.getElementById("toggleFlipHButton");
 const togglePrevOverlayButton = document.getElementById("togglePrevOverlayButton");
 const prevOverlayOpacitySlider = document.getElementById("prevOverlayOpacitySlider");
 const prevOverlayOpacityValue = document.getElementById("prevOverlayOpacityValue");
@@ -81,6 +82,7 @@ let gridLineWidth = 2;
 let cameraZoom = 1.0;     // 1.0 = ズームなし、>1.0 = ズームイン
 let cameraX = 0;          // カメラ位置（選択領域内px基準: 0 〜 selectionWidth - visibleWidth）
 let cameraY = 0;          // カメラ位置（選択領域内px基準: 0 〜 selectionHeight - visibleHeight）
+let isFlippedH = false;   // 左右反転フラグ
 
 let isDraggingCamera = false;
 let cameraDragStartX = 0;
@@ -321,6 +323,10 @@ function showSelectionImage() {
     showCurrentSelection();
 }
 
+if (selectionImage) {
+    selectionImage.addEventListener('contextmenu', (e) => e.preventDefault());
+}
+
 function showCurrentSelection() {
     if (images.length === 0) return;
     const item = getCurrentImage();
@@ -401,6 +407,13 @@ function updateSelectedCanvas() {
 
     selectedCtx.clearRect(0, 0, selectionWidth, selectionHeight);
 
+    selectedCtx.save();
+
+    if (isFlippedH) {
+        selectedCtx.translate(selectionWidth, 0);
+        selectedCtx.scale(-1, 1);
+    }
+
     // 虫眼鏡表示用（カメラ表示領域の計算）
     const srcX = selectionX + cameraX;
     const srcY = selectionY + cameraY;
@@ -433,6 +446,8 @@ function updateSelectedCanvas() {
     if (gridVisible) {
         drawCustomGrid();
     }
+
+    selectedCtx.restore();
 
     if (!selectionImage) return;
     const displayImageWidth = selectionImage.clientWidth;
@@ -649,7 +664,11 @@ if (selectedCanvas) {
             const deltaX = (event.clientX - cameraDragStartX) / (displayScale * cameraZoom);
             const deltaY = (event.clientY - cameraDragStartY) / (displayScale * cameraZoom);
 
-            cameraX = initialCameraX - deltaX;
+            if (isFlippedH) {
+                cameraX = initialCameraX + deltaX;
+            } else {
+                cameraX = initialCameraX - deltaX;
+            }
             cameraY = initialCameraY - deltaY;
 
             clampCameraPosition();
@@ -712,7 +731,8 @@ attachLongPressListener(gridZoomOutBtn, () => {
 
 function moveCamera(dx, dy) {
     const step = 5 / cameraZoom;
-    cameraX += dx * step;
+    const effectiveDx = isFlippedH ? -dx : dx;
+    cameraX += effectiveDx * step;
     cameraY += dy * step;
     clampCameraPosition();
     updateSelectedCanvas();
@@ -789,6 +809,14 @@ if (toggleGridButton) {
     });
 }
 
+if (toggleFlipHButton) {
+    toggleFlipHButton.addEventListener("click", () => {
+        isFlippedH = !isFlippedH;
+        toggleFlipHButton.textContent = isFlippedH ? "左右反転: ON" : "左右反転: OFF";
+        updateSelectedCanvas();
+    });
+}
+
 if (togglePrevOverlayButton) {
     togglePrevOverlayButton.addEventListener("click", () => {
         prevOverlayVisible = !prevOverlayVisible;
@@ -825,13 +853,17 @@ if (resetImagesButton) {
 
         gridRows = 5;
         gridCols = 5;
+        gridVisible = true;
         cameraZoom = 1.0;
         cameraX = 0;
         cameraY = 0;
+        isFlippedH = false;
 
         prevOverlayVisible = false;
         prevOverlayTransparency = 0.75;
 
+        if (toggleGridButton) toggleGridButton.textContent = "グリッド非表示";
+        if (toggleFlipHButton) toggleFlipHButton.textContent = "左右反転: OFF";
         if (togglePrevOverlayButton) togglePrevOverlayButton.textContent = "直前画像オーバーレイ: OFF";
         if (prevOverlayOpacitySlider) prevOverlayOpacitySlider.value = "0.75";
         if (prevOverlayOpacityValue) prevOverlayOpacityValue.textContent = "75%";
